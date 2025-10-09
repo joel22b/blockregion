@@ -1,0 +1,5 @@
+# IDE Things
+.vscode/
+
+# Build
+build*/
