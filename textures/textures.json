@@ -1,0 +1,16 @@
+{
+    "textures": [
+        {
+            "name": "error",
+            "hasSpecular": false,
+            "tileWidth": -1,
+            "tileHeight": -1
+        },
+        {
+            "name": "blocks",
+            "hasSpecular": true,
+            "tileWidth": 64,
+            "tileHeight": 64
+        }
+    ]
+}
