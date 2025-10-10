@@ -168,7 +168,7 @@ Chunk_Mesh* Chunk::getChunkMesh() {
 	return chunkMesh;
 }
 
-void Chunk::doRender(Shader shader, GLuint modelLoc) {
+void Chunk::doRender(shaders::Shader<shaders::Block> shader, GLuint modelLoc) {
 	chuckMeshMutex.lock();
 	if (chunkMesh != nullptr) {
 		if (!chunkMesh->ready()) {

@@ -20,7 +20,7 @@ void World::doUpdate() {
 	
 }
 
-void World::doRender(Shader shader, GLint modelLoc) {
+void World::doRender(shaders::Shader<shaders::Block> shader, GLint modelLoc) {
 	if (chunksMutex.try_lock()) {
 		for (int i = 0; i < chunksLength * chunksLength; i++) {
 			if (chunks[i] != nullptr) {

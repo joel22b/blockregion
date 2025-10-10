@@ -15,7 +15,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Other includes
-#include "shaders.h"
 #include "camera.h"
 #include "game.h"
 #include "text.h"
@@ -45,8 +44,6 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 //Logger* logger;
 
 Game* game;
-
-Text arialText;
 
 int main() {
     //logger = new Logger();
@@ -98,6 +95,8 @@ int main() {
     //glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    Text arialText;
 
     game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
 

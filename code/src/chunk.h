@@ -16,6 +16,7 @@
 #include "chunk-mesh.h"
 #include "block.h"
 #include "texture-loader.h"
+#include "shaders/block.h"
 
 class Chunk {
 private:
@@ -38,7 +39,7 @@ public:
 	void doUpdate(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS, Chunk* chunkZNEG);
 	void doPartialUpdate(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS, Chunk* chunkZNEG);
 
-	void doRender(Shader shader, GLuint modelLoc);
+	void doRender(shaders::Shader<shaders::Block> shader, GLuint modelLoc);
 	bool shouldRender();
 	void setRender(bool render);
 

@@ -13,6 +13,7 @@
 #include "chunk-consts.h"
 #include "block-consts.h"
 #include "texture-loader.h"
+#include "shaders/block.h"
 
 class World {
 public:
@@ -21,7 +22,7 @@ public:
 	~World();
 
 	void doUpdate();
-	void doRender(Shader shader, GLint modelLoc);
+	void doRender(shaders::Shader<shaders::Block> shader, GLint modelLoc);
 
 	Chunk* getChunkByCoords(int xPos, int zPos);
 	glm::vec2 getChunkCoords(int xPos, int zPos);

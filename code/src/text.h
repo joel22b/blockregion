@@ -16,7 +16,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "shaders.h"
+#include "shaders/text.h"
 
 struct Character {
     unsigned int TextureID;  // ID handle of the glyph texture
@@ -32,7 +32,7 @@ public:
 	Text(const char *path, int fontSize = 48) {
         this->fontSize = fontSize;
 
-        textShader = Shader("/home/jbraun/projects/blockregion/code/shaders/text.vert", "/home/jbraun/projects/blockregion/code/shaders/text.frag");
+        //textShader = shaders::Shader<shaders::Text>("/home/jbraun/projects/blockregion/code/shaders/text.vert", "/home/jbraun/projects/blockregion/code/shaders/text.frag");
         textShader.Use();
 
         FT_Library ft;
@@ -161,5 +161,5 @@ private:
     std::map<char, Character> Characters;
     glm::mat4 projection;
     unsigned int VAO, VBO;
-    Shader textShader;
+    shaders::Shader<shaders::Text> textShader;
 };

@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "shaders.h"
+#include "shaders/block.h"
 #include "texture-loader.h"
 
 using namespace std;
@@ -51,13 +51,13 @@ public:
         this->setupMesh();
     }
 
-    void doRender(Shader shader, std::vector<Texture> textures) {
+    void doRender(shaders::Shader<shaders::Block> shader, std::vector<Texture> textures) {
         this->textures = textures;
         
         Draw(shader);
     }
 
-    void doRender(Shader shader) {
+    void doRender(shaders::Shader<shaders::Block> shader) {
         Draw(shader);
     }
 
@@ -106,7 +106,7 @@ private:
     }
 
     // Render the mesh
-    void Draw(Shader shader)
+    void Draw(shaders::Shader<shaders::Block> shader)
     {
         // Bind appropriate textures
         GLuint diffuseNr = 1;

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(Blockregion)
+project(Blockregion LANGUAGES CXX)
 
 #######################################################
 # General
@@ -12,6 +12,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../devops/cmake" ${CMAKE_MODULE_PATH})
 
 include(FetchContent)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 #######################################################
 # Load dependencies
@@ -45,9 +48,11 @@ target_include_directories(${EXE} PUBLIC
     ${OPENGL_INCLUDE_DIR}
     ${SOIL2_INCLUDE_DIR}
     ${GLM_INCLUDE_DIRS}
-    "${CMAKE_SOURCE_DIR}/shaders"
+    ${CMAKE_SOURCE_DIR}/src/include
 )
 
 target_link_libraries(${EXE} PRIVATE 
     GLEW::GLEW glfw ${OPENGL_gl_LIBRARY} OpenGL::GL Freetype::Freetype ${SOIL2_LIBRARY} glm::glm nlohmann_json::nlohmann_json #${FREETYPE_LIBRARIES}
 )
+
+target_compile_features(${EXE} PRIVATE cxx_std_20)

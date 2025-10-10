@@ -120,7 +120,6 @@ void Game::mouseCallback(GLFWwindow* window, double xPos, double yPos) {
 void Game::loadShaders(int screenWidth, int screenHeight) {
 	// TODO: make this modular so multiple shaders can be used
 	// Load block shader
-	blockShader = Shader("/home/jbraun/projects/blockregion/code/shaders/block.vert", "/home/jbraun/projects/blockregion/code/shaders/block.frag", "/home/jbraun/projects/blockregion/code/shaders/block.geom");
 
 	blockShader.Use();
 	glUniform1i(glGetUniformLocation(blockShader.getProgram(), "material.diffuse"), 0);

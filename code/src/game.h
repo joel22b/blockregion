@@ -11,7 +11,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "camera.h"
-#include "shaders.h"
+#include "shaders/block.h"
 #include "world.h"
 #include "texture-loader.h"
 #include "text.h"
@@ -21,7 +21,7 @@
 class Game {
 private:
 	//Camera camera;
-	Shader blockShader;
+	shaders::Shader<shaders::Block> blockShader;
 	Texture_Loader* textureLoader;
 	World* world;
 
