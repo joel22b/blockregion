@@ -12,16 +12,16 @@
 namespace shaders
 {
 
-constexpr std::string_view filePrefix {"/home/jbraun/projects/blockregion/code/shaders/"};
+//constexpr std::string_view filePrefix {"/home/jbraun/projects/blockregion/code/shaders/"};
 
 class Loader
 {
 public:
-    std::optional<GLuint> load(std::string filename, int type);
+    std::optional<GLuint> load(std::string filename, GLenum type);
 
 private:
     std::optional<std::string> loadFile(std::string path);
-    std::optional<GLuint> compileShader(std::string code, int type);
+    std::optional<GLuint> compileShader(std::string code, GLenum type);
 };
 
 /********************************
@@ -30,9 +30,9 @@ private:
 
 inline
 std::optional<GLuint>
-Loader::load(std::string filename, int type)
+Loader::load(std::string filename, GLenum type)
 {
-    std::string path = std::string(filePrefix) + filename;
+    std::string path = std::string(SHADERS_PATH) + filename;
     
     std::optional<std::string> code = loadFile(path);
     if (!code.has_value())
@@ -64,7 +64,7 @@ Loader::loadFile(std::string path)
 
 inline
 std::optional<GLuint>
-Loader::compileShader(std::string code, int type)
+Loader::compileShader(std::string code, GLenum type)
 {
     const GLchar* glShaderCode = code.c_str();
 

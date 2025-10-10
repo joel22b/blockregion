@@ -48,11 +48,15 @@ target_include_directories(${EXE} PUBLIC
     ${OPENGL_INCLUDE_DIR}
     ${SOIL2_INCLUDE_DIR}
     ${GLM_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/src/include
+    ${CMAKE_SOURCE_DIR}/include
 )
 
 target_link_libraries(${EXE} PRIVATE 
-    GLEW::GLEW glfw ${OPENGL_gl_LIBRARY} OpenGL::GL Freetype::Freetype ${SOIL2_LIBRARY} glm::glm nlohmann_json::nlohmann_json #${FREETYPE_LIBRARIES}
+    GLEW::GLEW glfw ${OPENGL_gl_LIBRARY} OpenGL::GL Freetype::Freetype ${SOIL2_LIBRARY} glm::glm nlohmann_json::nlohmann_json
+)
+
+target_compile_definitions(${EXE} PUBLIC
+    -DSHADERS_PATH="${CMAKE_SOURCE_DIR}/shaders/"
 )
 
 target_compile_features(${EXE} PRIVATE cxx_std_20)
