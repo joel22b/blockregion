@@ -12,17 +12,16 @@
 #include "chunk.h"
 #include "chunk-consts.h"
 #include "block-consts.h"
-#include "texture-loader.h"
 #include "shaders/block.h"
 
 class World {
 public:
 	World();
-	World(Texture_Loader* textureLoader);
+	World(std::shared_ptr<shaders::Block> _shader);
 	~World();
 
 	void doUpdate();
-	void doRender(shaders::Shader<shaders::Block> shader, GLint modelLoc);
+	void doRender(GLint modelLoc);
 
 	Chunk* getChunkByCoords(int xPos, int zPos);
 	glm::vec2 getChunkCoords(int xPos, int zPos);
@@ -53,4 +52,6 @@ private:
 	Chunk* getChunkNoOffset(int xPos, int zPos);
 
 	inline bool fileExists(const std::string& name);
+
+	std::shared_ptr<shaders::Block> shader;
 };

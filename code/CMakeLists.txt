@@ -41,7 +41,6 @@ add_executable(${EXE}
     src/block.cpp
     src/chunk.cpp
     src/collision-detection.cpp
-    src/texture-loader.cpp
 )
 
 target_include_directories(${EXE} PUBLIC 
@@ -49,6 +48,7 @@ target_include_directories(${EXE} PUBLIC
     ${SOIL2_INCLUDE_DIR}
     ${GLM_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}
 )
 
 target_link_libraries(${EXE} PRIVATE 
@@ -57,6 +57,7 @@ target_link_libraries(${EXE} PRIVATE
 
 target_compile_definitions(${EXE} PUBLIC
     -DSHADERS_PATH="${CMAKE_SOURCE_DIR}/shaders/"
+    -DTEXTURES_PATH="${CMAKE_SOURCE_DIR}/../textures/"
 )
 
 target_compile_features(${EXE} PRIVATE cxx_std_20)

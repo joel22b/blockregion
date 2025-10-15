@@ -15,7 +15,7 @@
 #include "chunk-consts.h"
 #include "chunk-mesh.h"
 #include "block.h"
-#include "texture-loader.h"
+//#include "texture-loader.h"
 #include "shaders/block.h"
 
 class Chunk {
@@ -26,12 +26,13 @@ private:
 	Block_Consts* blockConsts;
 	int xPos, zPos;
 	bool render, toDelete;
+	std::shared_ptr<shaders::Block> shader;
 
 	std::vector<Block_Face> calculateMesh(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS, Chunk* chunkZNEG);
 
 public:
 	Chunk();
-	Chunk(Block_Consts* blockConsts, int xPos, int zPos);
+	Chunk(Block_Consts* blockConsts, int xPos, int zPos, std::shared_ptr<shaders::Block> _shader);
 	~Chunk();
 
 	Chunk_Mesh* getChunkMesh();
@@ -39,7 +40,7 @@ public:
 	void doUpdate(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS, Chunk* chunkZNEG);
 	void doPartialUpdate(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS, Chunk* chunkZNEG);
 
-	void doRender(shaders::Shader<shaders::Block> shader, GLuint modelLoc);
+	void doRender(GLuint modelLoc);
 	bool shouldRender();
 	void setRender(bool render);
 

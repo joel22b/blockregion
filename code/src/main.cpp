@@ -57,6 +57,12 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR)
+    {
+        std::cout << "Error main window: " << err << std::endl;
+    }
+
     // Creates the window (The two nullptrs are monitor and window respectively)
     //std::ostringstream msg;
 	//msg << "Creating GFLW window: width=" << WIDTH << " height=" << HEIGHT;
@@ -80,6 +86,12 @@ int main() {
     glfwSetCursorPosCallback(window, MouseCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    err = glGetError();
+    if (err != GL_NO_ERROR)
+    {
+        std::cout << "Error main callback: " << err << std::endl;
+    }
+
     glewExperimental = GL_TRUE;
 
     if (glewInit() != GLEW_OK) {
@@ -90,17 +102,27 @@ int main() {
 
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+    err = glGetError();
+    if (err != GL_NO_ERROR)
+    {
+        std::cout << "Error main viewport: " << err << std::endl;
+    }
+
     glEnable(GL_DEPTH_TEST);
 
     //glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    Text arialText;
+    err = glGetError();
+    if (err != GL_NO_ERROR)
+    {
+        std::cout << "Error main blend: " << err << std::endl;
+    }
 
     game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    arialText = Text("/home/jbraun/projects/blockregion/textures/arial.ttf", 20);
+    Text arialText = Text("/home/jbraun/projects/blockregion/textures/arial.ttf", 20);
 
     // Main program loop
     //LOG(INFO, "Entering main loop");

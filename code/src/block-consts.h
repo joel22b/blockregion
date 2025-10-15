@@ -1,13 +1,15 @@
 #pragma once
 
 #include <iostream>
+#include <string>
 #include <ostream>
+#include <sstream>
 #include <unordered_map>
 
 #include "glm/glm.hpp"
 
-#include "mesh.h"
-#include "texture-loader.h"
+//#include "mesh.h"
+//#include "texture-loader.h"
 
 enum Block_Type {
 	AIR = 0,
@@ -30,8 +32,8 @@ const int BLOCK_WIDTH = 1;
 class Block_Consts {
 public:
 
-	Block_Consts(std::vector<Texture> blockTextures) {
-		this->blockTextures = blockTextures;
+	Block_Consts() {
+		//this->blockTextures = blockTextures;
 		loadBlockTexCoords();
 	}
 
@@ -41,12 +43,12 @@ public:
 		return blockTexCoords[query.str()];
 	}
 
-	std::vector<Texture> getBlockTextures() {
+	/*std::vector<Texture> getBlockTextures() {
 		return blockTextures;
-	}
+	}*/
 
 private:
-	std::vector<Texture> blockTextures;
+	//std::vector<Texture> blockTextures;
 	std::unordered_map<std::string, glm::vec2> blockTexCoords;
 
 	void loadBlockTexCoords() {

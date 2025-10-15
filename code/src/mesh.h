@@ -51,13 +51,13 @@ public:
         this->setupMesh();
     }
 
-    void doRender(shaders::Shader<shaders::Block> shader, std::vector<Texture> textures) {
+    void doRender(shaders::Block shader, std::vector<Texture> textures) {
         this->textures = textures;
         
         Draw(shader);
     }
 
-    void doRender(shaders::Shader<shaders::Block> shader) {
+    void doRender(shaders::Block shader) {
         Draw(shader);
     }
 
@@ -106,7 +106,7 @@ private:
     }
 
     // Render the mesh
-    void Draw(shaders::Shader<shaders::Block> shader)
+    void Draw(shaders::Block shader)
     {
         // Bind appropriate textures
         GLuint diffuseNr = 1;
