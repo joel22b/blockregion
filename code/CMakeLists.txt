@@ -50,7 +50,10 @@ target_include_directories(${EXE} PUBLIC
 )
 
 target_link_libraries(${EXE} PRIVATE 
-    GLEW::GLEW glfw ${OPENGL_gl_LIBRARY} OpenGL::GL Freetype::Freetype ${SOIL2_LIBRARY} glm::glm nlohmann_json::nlohmann_json
+    GLEW::GLEW glfw ${OPENGL_gl_LIBRARY} OpenGL::GL Freetype::Freetype
+    #${SOIL2_LIBRARY} 
+    soil2
+    glm::glm nlohmann_json::nlohmann_json
 )
 
 target_compile_definitions(${EXE} PUBLIC
