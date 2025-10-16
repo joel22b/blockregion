@@ -10,6 +10,8 @@
 
 #include <textures/texture.h>
 
+#include <textures/error-texture.h>
+
 #include "nlohmann/json.hpp"
 #include "SOIL2/SOIL2.h"
 
@@ -89,7 +91,8 @@ Loader::getTextures(const std::string name)
 
     // Not found!
     std::cout << "Texture array not found in loader: " << name << std::endl;
-    return std::vector<Texture>();
+    //return std::vector<Texture>();
+    return texturesMap["error"];
 }
 
 inline
@@ -104,7 +107,8 @@ Loader::getTile(const std::string name)
     
     // Not found!
     std::cout << "Tile not found in texture loader: " << name << std::endl;
-    return Tile();
+    //return Tile();
+    return tilesMap["error"];
 }
 
 inline
@@ -206,13 +210,29 @@ Loader::loadTexture(std::string name,
     int textureWidth, textureHeight;
     unsigned char *image;
 
-    // Load in image from disk
-    image = SOIL_load_image(path.str().c_str(), &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
-    if (image == NULL)
+    if (name == "error")
     {
-        //LOG(WARN, "Failed to load texture from disk: \"" + name + "\" from path: " + path);
-        std::cout << "Failed to load texture: " << path.str() << std::endl;
-        return;
+        std::cout << "Loading error" << std::endl;
+        
+        image = SOIL_load_image_from_memory(images::_textures_error_png, images::_textures_error_png_len,
+            &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
+        if (image == NULL)
+        {
+            //LOG(WARN, "Failed to load texture from disk: \"" + name + "\" from path: " + path);
+            std::cout << "Failed to load texture from memory: " << "error" << std::endl;
+            return;
+        }
+    }
+    else
+    {
+        // Load in image from disk
+        image = SOIL_load_image(path.str().c_str(), &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
+        if (image == NULL)
+        {
+            //LOG(WARN, "Failed to load texture from disk: \"" + name + "\" from path: " + path);
+            std::cout << "Failed to load texture from disk: " << path.str() << std::endl;
+            return;
+        }
     }
 
     // Bind image data to OpenGL for use on graphics card
