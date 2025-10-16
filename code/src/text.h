@@ -28,6 +28,7 @@
 class Text {
 public:
 	Text(const char *path, int fontSize = 48) {
+        /*
         this->fontSize = fontSize;
 
         std::shared_ptr<textures::Loader> texLoader = nullptr;
@@ -111,10 +112,12 @@ public:
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+        */
     }
 
     void RenderText(std::string text, float x, float y, float scale, glm::vec3 color)
     {
+        /*
         if (!textShader)
         {
             std::cout << "TEXT SHADER DOESN'T EXIST" << std::endl;
@@ -124,6 +127,7 @@ public:
         textShader->bindTextures(color);
         textShader->draw(VAO, VBO, Characters, text, x, y, scale);
         textShader->unbindTextures();
+    */
     }
 
 private:
