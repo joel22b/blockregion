@@ -2,8 +2,9 @@ include(FetchContent)
 
 FetchContent_Declare(
     Freetype
-    GIT_REPOSITORY https://github.com/freetype/freetype.git
-    GIT_TAG        VER-2-12-1
+    GIT_REPOSITORY git@github.com:freetype/freetype.git
+    GIT_TAG VER-2-12-1
+    GIT_SHALLOW TRUE
 )
 
 FetchContent_MakeAvailable(Freetype)

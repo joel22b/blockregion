@@ -1,9 +1,10 @@
 include(FetchContent)
 
 FetchContent_Declare(
-  glfw3
-  GIT_REPOSITORY https://github.com/glfw/glfw.git
-  GIT_TAG 3.3.9
+    glfw3
+    GIT_REPOSITORY git@github.com:glfw/glfw.git
+    GIT_TAG 3.3.9
+    GIT_SHALLOW TRUE
 )
 
 FetchContent_MakeAvailable(glfw3)
