@@ -11,17 +11,15 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../devops/cmake" ${CMAKE_MODULE_PATH})
 
-include(FetchContent)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 #######################################################
 # Load dependencies
 #######################################################
+find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(glfw3 REQUIRED)
-find_package(OpenGL REQUIRED)
 find_package(SOIL2 REQUIRED)
 find_package(glm REQUIRED)
 find_package(Freetype REQUIRED)

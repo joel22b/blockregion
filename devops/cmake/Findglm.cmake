@@ -1,3 +1,5 @@
+include(FetchContent)
+
 FetchContent_Declare(
     glm
     GIT_REPOSITORY git@github.com:g-truc/glm.git
