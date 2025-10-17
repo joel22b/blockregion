@@ -122,7 +122,9 @@ int main() {
 
     game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    Text arialText = Text("/home/jbraun/projects/blockregion/textures/arial.ttf", 20);
+    std::string textPath{TEXTURES_PATH};
+    textPath += "/arial.ttf";
+    Text arialText = Text(textPath.c_str(), 20);
 
     // Main program loop
     //LOG(INFO, "Entering main loop");
