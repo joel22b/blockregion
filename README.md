@@ -1,10 +1,19 @@
 # blockregion
-A minecraft style game built entirely from scratch
 
+A minecraft style game built entirely from scratch.
 
-## Building
+**Table of Contents**
 
-### Linux
+- [Building](#building)
+  - [Linux](#linux)
+  - [Windows](#windows)
+- [Release Notes](#release-notes)
+
+---
+
+# Building
+
+## Linux
 
 Install dependencies using your native package manager.
 ```
@@ -41,5 +50,32 @@ make -j blockregion
 ```
 
 
-### Windows
+## Windows
 
+TODO: Add instructions for Windows build
+
+# Release Notes
+
+## v0.1.0 Shader and Texture Revamp
+
+Updated old shader and texture code to abstract dependencies and be more modular using the CRTP.
+- Created a Block and Text shader
+- Removed absolute paths and referenced to git repo base
+- Made texture loader with error checking
+- Windows build support
+- Improved build system with top level CMake
+
+## v0.0.0 Blockzone port
+
+Transferred [Blockzone](https://github.com/joel22b/Blockzone) project to build on Linux as a base for this project.
+
+Goals:
+- Develop clean, modular code
+- Clean up project and fix long standing bugs
+- Implement a multiplayer system from scratch
+- Better world generation with rivers, mountains, and biomes
+- Menus and settings
+- Better lighting system
+- Skybox and clouds
+- Saving game system
+- Creatures
