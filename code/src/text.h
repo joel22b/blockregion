@@ -4,7 +4,9 @@
 #include <string>
 #include <map>
 
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
 #include <GL/glew.h>
 
 #include <GLFW/glfw3.h>
@@ -27,7 +29,8 @@
 
 class Text {
 public:
-	Text(const char *path, int fontSize = 48) {
+	Text(const char *path, int fontSize = 48)
+    {
         this->fontSize = fontSize;
 
         std::shared_ptr<textures::Loader> texLoader = nullptr;
@@ -37,15 +40,17 @@ public:
         textShader->Use();
 
         FT_Library ft;
-        if (FT_Init_FreeType(&ft))
+        auto errorFtInit = FT_Init_FreeType(&ft);
+        if (errorFtInit)
         {
-            std::cout << "ERROR::FREETYPE::Could_not_init_FreeType_Library" << std::endl;
+            std::cout << "ERROR::FREETYPE::Could_not_init_FreeType_Library: " << errorFtInit << std::endl;
         }
 
         FT_Face face;
-        if (FT_New_Face(ft, path, 0, &face))
+        auto errorFaceNew = FT_New_Face(ft, path, 0, &face);
+        if (errorFaceNew)
         {
-            std::cout << "ERROR::FREETYPE::Failed_to_load_font" << std::endl;
+            std::cout << "ERROR::FREETYPE::Failed_to_load_font: " << errorFaceNew << std::endl;
             std::cout << "\t" << path << std::endl;
         }
         else {
