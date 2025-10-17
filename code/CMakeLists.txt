@@ -1,30 +1,3 @@
-cmake_minimum_required(VERSION 3.22)
-
-project(Blockregion LANGUAGES CXX)
-
-#######################################################
-# General
-#######################################################
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/../devops/cmake" ${CMAKE_MODULE_PATH})
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED YES)
-
-#######################################################
-# Load dependencies
-#######################################################
-find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
-find_package(glfw3 REQUIRED)
-find_package(SOIL2 REQUIRED)
-find_package(glm REQUIRED)
-find_package(Freetype REQUIRED)
-find_package(nlohmann_json REQUIRED)
-
 #######################################################
 # Blockregion
 #######################################################
@@ -45,7 +18,7 @@ target_include_directories(${EXE} PUBLIC
     ${OPENGL_INCLUDE_DIR}
     ${SOIL2_INCLUDE_DIR}
     ${GLM_INCLUDE_DIRS}
-    ${CMAKE_SOURCE_DIR}/include
+    ${GIT_REPO_BASE}/code/include
     ${CMAKE_SOURCE_DIR}
     ${freetype_INCLUDE_DIR}
 )
@@ -62,8 +35,8 @@ target_link_libraries(${EXE} PRIVATE
 )
 
 target_compile_definitions(${EXE} PUBLIC
-    -DSHADERS_PATH="${CMAKE_SOURCE_DIR}/shaders/"
-    -DTEXTURES_PATH="${CMAKE_SOURCE_DIR}/../textures/"
+    -DSHADERS_PATH="${GIT_REPO_BASE}/code/shaders/"
+    -DTEXTURES_PATH="${GIT_REPO_BASE}/textures/"
 )
 
 target_compile_features(${EXE} PRIVATE cxx_std_20)
