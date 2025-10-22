@@ -21,7 +21,7 @@ namespace shaders
 class Text : public Shader<Text>
 {
 public:
-    const std::string_view name {"Text Shader"};
+    static constexpr std::string name {"Text Shader"};
 
     Text(std::shared_ptr<textures::Loader> texLoader) : Shader(texLoader)
     {}
@@ -32,8 +32,8 @@ public:
     void draw(GLuint VAO, GLuint VBO, std::map<char, Character> Characters, std::string text, float x, float y, float scale);
 
     // This should only be called by Shader class
-    bool attachShaders() const;
-    void loadTextures(std::shared_ptr<textures::Loader> texLoader);
+    errors::expected<> attachShaders() const;
+    errors::expected<> loadTextures(std::shared_ptr<textures::Loader> texLoader);
 
 private:
 };
@@ -101,27 +101,30 @@ Text::draw(GLuint VAO, GLuint VBO, std::map<char, Character> Characters, std::st
 }
 
 inline
-bool
+errors::expected<>
 Text::attachShaders() const
 {
     Loader loader;
     
-    std::optional<GLuint> vert = loader.load("text/text.vert", GL_VERTEX_SHADER);
-    if (!vert.has_value())
+    errors::expected<GLuint> vert = loader.load("text/text.vert", GL_VERTEX_SHADER);
+    if (errors::has_error(vert))
     {
-        return false;
+        return errors::unexpected(vert.error());
     }
-    glAttachShader(program, vert.value());
     
-    std::optional<GLuint> frag = loader.load("text/text.frag", GL_FRAGMENT_SHADER);
-    if (!frag.has_value())
+    errors::expected<GLuint> frag = loader.load("text/text.frag", GL_FRAGMENT_SHADER);
+    if (errors::has_error(frag))
     {
-        return false;
+        return errors::unexpected(frag.error());
     }
+
+    // Attach all shaders once loading has successfuly completed
+    glAttachShader(program, vert.value());
     glAttachShader(program, frag.value());
 
-    bool ret = linkProgram();
+    errors::expected<> ret = linkProgram();
     
+    // Clean up whether success or failure
     glDeleteShader(vert.value());
     glDeleteShader(frag.value());
     
@@ -129,8 +132,10 @@ Text::attachShaders() const
 }
 
 inline
-void
+errors::expected<>
 Text::loadTextures(std::shared_ptr<textures::Loader> texLoader)
-{}
+{
+    return {};
+}
 
 } // namespace shaders

@@ -64,6 +64,8 @@ Updated old shader and texture code to abstract dependencies and be more modular
 - Made texture loader with error checking
 - Windows build support
 - Improved build system with top level CMake
+- Added `errors` wrappers for `std::expected`
+- Shaders do error checking
 
 ## v0.0.0 Blockzone port
 

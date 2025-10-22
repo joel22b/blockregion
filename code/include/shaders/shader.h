@@ -10,6 +10,8 @@
 
 #include <GL/glew.h>
 
+#include <errors/br-expected.h>
+
 #include <textures/loader.h>
 
 namespace shaders
@@ -32,7 +34,7 @@ public:
     }
 
 protected:
-    bool linkProgram() const;
+    errors::expected<> linkProgram() const;
 
     GLuint program;
 
@@ -50,7 +52,8 @@ Shader<Derived>::Shader(std::shared_ptr<textures::Loader> texLoader)
     GLenum err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error shader start: " << err << std::endl;
+        std::string derivedName {static_cast<const Derived*>(this)->name};
+        std::cout << "Error shader start: " << derivedName << " Error: " << err << std::endl;
     }
 
     program = glCreateProgram();
@@ -60,28 +63,40 @@ Shader<Derived>::Shader(std::shared_ptr<textures::Loader> texLoader)
         std::cout << "Error shader program: " << err << std::endl;
     }
 
-    static_cast<const Derived*>(this)->attachShaders();
+    errors::expected<> retAttach = static_cast<const Derived*>(this)->attachShaders();
+    if (errors::has_error(retAttach))
+    {
+        std::cout << "Failed to attach shaders: " << retAttach.error() << std::endl;
+        return;
+    }
 
-    static_cast<Derived*>(this)->loadTextures(texLoader);
+    errors::expected<> retTextures = static_cast<Derived*>(this)->loadTextures(texLoader);
+    if (errors::has_error(retTextures))
+    {
+        std::cout << "Failed to load textures: " << retTextures.error() << std::endl;
+        return;
+    }
 }
 
 template <typename Derived>
 inline
-bool
+errors::expected<>
 Shader<Derived>::linkProgram() const
 {
     glLinkProgram(program);
-    // Print linking errors if any
     GLint success;
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (!success) {
         GLchar infoLog[512];
         glGetProgramInfoLog(program, 512, NULL, infoLog);
-        std::cout << "ERROR: Shader failed to link program: " << static_cast<const Derived*>(this)->name << std::endl << infoLog << std::endl;
-        return false;
+        std::string errMsg {"ERROR: Shader failed to link program: "};
+        errMsg += static_cast<const Derived*>(this)->name;
+        errMsg += "\n\r";
+        errMsg += infoLog;
+        return errors::unexpected(errMsg, errors::Code::InitializationError);
     }
 
-    return true;
+    return {};
 }
 
 } // namespace shaders

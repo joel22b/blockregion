@@ -9,19 +9,19 @@
 
 #include <GL/glew.h>
 
+#include <errors/br-expected.h>
+
 namespace shaders
 {
-
-//constexpr std::string_view filePrefix {"/home/jbraun/projects/blockregion/code/shaders/"};
 
 class Loader
 {
 public:
-    std::optional<GLuint> load(std::string filename, GLenum type);
+    errors::expected<GLuint> load(std::string filename, GLenum type);
 
 private:
-    std::optional<std::string> loadFile(std::string path);
-    std::optional<GLuint> compileShader(std::string code, GLenum type);
+    errors::expected<std::string> loadFile(std::string path);
+    errors::expected<GLuint> compileShader(std::string code, GLenum type);
 };
 
 /********************************
@@ -29,23 +29,22 @@ private:
 ********************************/
 
 inline
-std::optional<GLuint>
+errors::expected<GLuint>
 Loader::load(std::string filename, GLenum type)
 {
     std::string path = std::string(SHADERS_PATH) + filename;
     
-    std::optional<std::string> code = loadFile(path);
-    if (!code.has_value())
+    errors::expected<std::string> code = loadFile(path);
+    if (errors::has_error(code))
     {
-        std::cout << "Failed to load shader file: " << filename << std::endl;
-        return std::nullopt;
+        return errors::unexpected(code.error());
     }
 
     return compileShader(code.value(), type);
 }
 
 inline
-std::optional<std::string>
+errors::expected<std::string>
 Loader::loadFile(std::string path)
 {
     std::ifstream file(path);
@@ -56,14 +55,16 @@ Loader::loadFile(std::string path)
                                    std::istreambuf_iterator<char>());
         return file_contents;
         file.close();
-    } else {
-        std::cerr << "Error: Could not open file: " << path << std::endl;
     }
-    return std::nullopt;
+    else
+    {
+        return errors::unexpected("Could not open file: " + path);
+    }
+    return {};
 }
 
 inline
-std::optional<GLuint>
+errors::expected<GLuint>
 Loader::compileShader(std::string code, GLenum type)
 {
     const GLchar* glShaderCode = code.c_str();
@@ -77,8 +78,12 @@ Loader::compileShader(std::string code, GLenum type)
     if (!success) {
         GLchar infoLog[512];
         glGetShaderInfoLog(glShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::" << type << "::COMPILATION_ERROR\n" << infoLog << std::endl;
-        return std::nullopt;
+        std::string errMsg {"Shader compilation failed for type="};
+        errMsg += std::to_string(type);
+        errMsg += " Error:";
+        errMsg += "\n\r";
+        errMsg += infoLog;
+        return errors::unexpected(errMsg, errors::Code::InitializationError);
     }
     return glShader;
 }

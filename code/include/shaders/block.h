@@ -19,7 +19,7 @@ namespace shaders
 class Block : public Shader<Block>
 {
 public:
-    const std::string_view name {"Block Shader"};
+    static constexpr std::string name {"Block Shader"};
 
     Block(std::shared_ptr<textures::Loader> texLoader) : Shader(texLoader)
     {}
@@ -30,8 +30,8 @@ public:
     void draw(GLuint VAO, size_t size);
 
     // This should only be called by Shader class
-    bool attachShaders() const;
-    void loadTextures(std::shared_ptr<textures::Loader> texLoader);
+    errors::expected<> attachShaders() const;
+    errors::expected<> loadTextures(std::shared_ptr<textures::Loader> texLoader);
 
 private:
 };
@@ -119,55 +119,46 @@ Block::draw(GLuint VAO, size_t size)
 }
 
 inline
-bool
+errors::expected<>
 Block::attachShaders() const
 {
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
-        std::cout << "Error attach start: " << err << std::endl;
-    }
-
     Loader loader;
     
-    std::optional<GLuint> vert = loader.load("block/block.vert", GL_VERTEX_SHADER);
-    if (!vert.has_value())
+    errors::expected<GLuint> vert = loader.load("block/block.vert", GL_VERTEX_SHADER);
+    if (errors::has_error(vert))
     {
-        return false;
+        return errors::unexpected(vert.error());
     }
+    
+    errors::expected<GLuint> geom = loader.load("block/block.geom", GL_GEOMETRY_SHADER);
+    if (errors::has_error(geom))
+    {
+        return errors::unexpected(geom.error());
+    }
+    
+    errors::expected<GLuint> frag = loader.load("block/block.frag", GL_FRAGMENT_SHADER);
+    if (errors::has_error(frag))
+    {
+        return errors::unexpected(frag.error());
+    }
+
+    // Attach all shaders once loading has successfuly completed
     glAttachShader(program, vert.value());
-    
-    std::optional<GLuint> geom = loader.load("block/block.geom", GL_GEOMETRY_SHADER);
-    if (!geom.has_value())
-    {
-        return false;
-    }
     glAttachShader(program, geom.value());
-    
-    std::optional<GLuint> frag = loader.load("block/block.frag", GL_FRAGMENT_SHADER);
-    if (!frag.has_value())
-    {
-        return false;
-    }
     glAttachShader(program, frag.value());
 
-    bool ret = linkProgram();
+    errors::expected<> ret = linkProgram();
     
+    // Clean up whether success or failure
     glDeleteShader(vert.value());
     glDeleteShader(geom.value());
     glDeleteShader(frag.value());
-
-    err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
-        std::cout << "Error attach end: " << err << std::endl;
-    }
     
     return ret;
 }
 
 inline
-void
+errors::expected<>
 Block::loadTextures(std::shared_ptr<textures::Loader> texLoader)
 {
     Use();
@@ -175,45 +166,37 @@ Block::loadTextures(std::shared_ptr<textures::Loader> texLoader)
     const std::string tmp {"blocks"};
     textures::TextureSet texSet = texLoader->getTextureSet(tmp);
     texs = texSet.textures;
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
-        std::cout << "Error load start: " << err << std::endl;
-    }
 
     glUniform1i(glGetUniformLocation(getProgram(), "material.diffuse"), 0);
-	err = glGetError();
+	GLenum err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error load mats diffuse: " << err << std::endl;
+        return errors::unexpected("Failed to set material's diffuse: " + std::to_string(err), errors::Code::InitializationError);
     }
 
     glUniform1i(glGetUniformLocation(getProgram(), "material.specular"), 1);
-
     err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error load mats specular: " << err << std::endl;
+        return errors::unexpected("Failed to set material's specular: " + std::to_string(err), errors::Code::InitializationError);
     }
 
 	int offsetArray[16] = { 0, 1, -1, 0, 1, 0, -1, 0, 1, -1, 0, 0, 0, 0, 0, 1 };
 	glm::mat4 offsetTransform = glm::make_mat4(offsetArray);
 	GLint offsetTransformLoc = glGetUniformLocation(getProgram(), "offsetTransform");
 	glUniformMatrix4fv(offsetTransformLoc, 1, GL_FALSE, glm::value_ptr(offsetTransform));
-	
     err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error load offset: " << err << std::endl;
+        return errors::unexpected("Failed to set offset matrix: " + std::to_string(err), errors::Code::InitializationError);
     }
 
 	// Set the tile dimensions for this shader
 	glUniform2f(glGetUniformLocation(getProgram(), "texDim"), texSet.tileWidth, texSet.tileHeight);
-
     err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error load tile: " << err << std::endl;
+        return errors::unexpected("Failed to set texture dimensions: " + std::to_string(err), errors::Code::InitializationError);
     }
 
 	// Directional Light
@@ -222,14 +205,13 @@ Block::loadTextures(std::shared_ptr<textures::Loader> texLoader)
 	glUniform3f(glGetUniformLocation(getProgram(), "dirLight.ambient"), 0.2f, 0.2f, 0.2f);
 	glUniform3f(glGetUniformLocation(getProgram(), "dirLight.diffuse"), 0.8f, 0.8f, 0.8f);
 	glUniform3f(glGetUniformLocation(getProgram(), "dirLight.specular"), 1.0f, 1.0f, 1.0f);
-
-    std::cout << "end loadTextures size: " << texs->size() << std::endl;
-
     err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error load end: " << err << std::endl;
+        return errors::unexpected("Failed to set lighting settings: " + std::to_string(err), errors::Code::InitializationError);
     }
+
+    return {};
 }
 
 } // namespace shaders
