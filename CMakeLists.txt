@@ -25,8 +25,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 set(CMAKE_MODULE_PATH "${GIT_REPO_BASE}/devops/cmake" ${CMAKE_MODULE_PATH})
 
-# Set C++ 20 version
-set(CMAKE_CXX_STANDARD 20)
+# Set C++ 23 version
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 #######################################################

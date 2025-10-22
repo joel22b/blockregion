@@ -36,7 +36,7 @@ protected:
 
     GLuint program;
 
-    std::vector<textures::Texture> texs;
+    std::shared_ptr<std::vector<textures::Texture>> texs;
 };
 
 /********************************

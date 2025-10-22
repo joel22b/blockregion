@@ -44,7 +44,7 @@ inline
 void
 Block::bindTextures()
 {
-    //std::cout << "bind loadTextures size: " << texs.size() << std::endl;
+    //std::cout << "bind loadTextures size: " << texs->size() << std::endl;
 
     Use();
 
@@ -52,18 +52,18 @@ Block::bindTextures()
     GLuint diffuseNr = 1;
     GLuint specularNr = 1;
 
-    for (GLuint i = 0; i < texs.size(); i++)
+    for (GLuint i = 0; i < texs->size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i); // Active proper texture unit before binding
         // Retrieve texture number (the N in diffuse_textureN)
         std::stringstream ss;
-        ss << texs[i].type;
+        ss << texs->at(i).type;
 
-        if (texs[i].type == textures::TextureType::Defuse)
+        if (texs->at(i).type == textures::TextureType::Diffuse)
         {
             ss << diffuseNr++; // Transfer GLuint to stream
         }
-        else if (texs[i].type == textures::TextureType::Specular)
+        else if (texs->at(i).type == textures::TextureType::Specular)
         {
             ss << specularNr++; // Transfer GLuint to stream
         }
@@ -72,7 +72,7 @@ Block::bindTextures()
         // Now set the sampler to the correct texture unit
         glUniform1i(glGetUniformLocation(getProgram(), name.c_str()), i);
         // And finally bind the texture
-        glBindTexture(GL_TEXTURE_2D, texs[i].id);
+        glBindTexture(GL_TEXTURE_2D, texs->at(i).id);
     }
 
     // Also set each mesh's shininess property to a default value (if you want you could extend this to another mesh property and possibly change this value)
@@ -90,7 +90,7 @@ void
 Block::unbindTextures()
 {
     // Always good practice to set everything back to defaults once configured.
-    for (GLuint i = 0; i < texs.size(); i++)
+    for (GLuint i = 0; i < texs->size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -173,8 +173,8 @@ Block::loadTextures(std::shared_ptr<textures::Loader> texLoader)
     Use();
 
     const std::string tmp {"blocks"};
-    texs = texLoader->getTextures(tmp);
-    textures::Tile tile = texLoader->getTile(tmp);
+    textures::TextureSet texSet = texLoader->getTextureSet(tmp);
+    texs = texSet.textures;
     GLenum err = glGetError();
     if (err != GL_NO_ERROR)
     {
@@ -208,7 +208,7 @@ Block::loadTextures(std::shared_ptr<textures::Loader> texLoader)
     }
 
 	// Set the tile dimensions for this shader
-	glUniform2f(glGetUniformLocation(getProgram(), "texDim"), tile.numWidth, tile.numHeight);
+	glUniform2f(glGetUniformLocation(getProgram(), "texDim"), texSet.tileWidth, texSet.tileHeight);
 
     err = glGetError();
     if (err != GL_NO_ERROR)
@@ -223,7 +223,7 @@ Block::loadTextures(std::shared_ptr<textures::Loader> texLoader)
 	glUniform3f(glGetUniformLocation(getProgram(), "dirLight.diffuse"), 0.8f, 0.8f, 0.8f);
 	glUniform3f(glGetUniformLocation(getProgram(), "dirLight.specular"), 1.0f, 1.0f, 1.0f);
 
-    std::cout << "end loadTextures size: " << texs.size() << std::endl;
+    std::cout << "end loadTextures size: " << texs->size() << std::endl;
 
     err = glGetError();
     if (err != GL_NO_ERROR)

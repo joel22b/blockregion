@@ -38,5 +38,3 @@ target_compile_definitions(${EXE} PUBLIC
     -DSHADERS_PATH="${GIT_REPO_BASE}/code/shaders/"
     -DTEXTURES_PATH="${GIT_REPO_BASE}/textures/"
 )
-
-target_compile_features(${EXE} PRIVATE cxx_std_20)

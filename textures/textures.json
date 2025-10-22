@@ -1,14 +1,14 @@
 {
     "textures": [
         {
-            "name": "error",
-            "hasSpecular": false,
-            "tileWidth": -1,
-            "tileHeight": -1
+            "name": "blocks",
+            "type": "diffuse",
+            "tileWidth": 64,
+            "tileHeight": 64
         },
         {
             "name": "blocks",
-            "hasSpecular": true,
+            "type": "specular",
             "tileWidth": 64,
             "tileHeight": 64
         }
