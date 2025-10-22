@@ -15,7 +15,7 @@
 #include "chunk-consts.h"
 #include "chunk-mesh.h"
 #include "block.h"
-//#include "texture-loader.h"
+
 #include "shaders/block.h"
 
 class Chunk {

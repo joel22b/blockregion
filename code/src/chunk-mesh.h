@@ -12,7 +12,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "shaders/block.h"
-//#include "texture-loader.h"
 
 using namespace std;
 
@@ -72,7 +71,6 @@ public:
 private:
     /*  Mesh Data  */
     vector<Block_Face> vertices;
-    //vector<Texture> textures;
     std::shared_ptr<shaders::Block> shader;
 
     /*  Render data  */

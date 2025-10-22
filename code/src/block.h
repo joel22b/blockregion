@@ -8,8 +8,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-//#include "mesh.h"
-//#include "texture-loader.h"
 #include "block-consts.h"
 
 class Block {

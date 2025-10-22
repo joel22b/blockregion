@@ -8,9 +8,6 @@
 
 #include "glm/glm.hpp"
 
-//#include "mesh.h"
-//#include "texture-loader.h"
-
 enum Block_Type {
 	AIR = 0,
 	GRASS = 1,
@@ -33,7 +30,6 @@ class Block_Consts {
 public:
 
 	Block_Consts() {
-		//this->blockTextures = blockTextures;
 		loadBlockTexCoords();
 	}
 
@@ -43,12 +39,7 @@ public:
 		return blockTexCoords[query.str()];
 	}
 
-	/*std::vector<Texture> getBlockTextures() {
-		return blockTextures;
-	}*/
-
 private:
-	//std::vector<Texture> blockTextures;
 	std::unordered_map<std::string, glm::vec2> blockTexCoords;
 
 	void loadBlockTexCoords() {
