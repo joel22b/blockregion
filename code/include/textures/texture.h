@@ -24,14 +24,6 @@ struct Texture
     TextureType type {TextureType::Unknown};
 };
 
-struct Tile
-{
-    int totalWidth {0};
-    int totalHeight {0};
-    int numWidth {0};
-    int numHeight {0};
-};
-
 struct TextureSet
 {
     std::shared_ptr<std::vector<Texture>> textures {};
