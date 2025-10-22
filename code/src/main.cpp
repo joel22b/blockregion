@@ -2,7 +2,9 @@
 #include <string>
 
 // GLEW
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
 #include <GL/glew.h>
 
 // GLFW
@@ -15,7 +17,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Other includes
-#include "shaders.h"
 #include "camera.h"
 #include "game.h"
 #include "text.h"
@@ -46,8 +47,6 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 Game* game;
 
-Text arialText;
-
 int main() {
     //logger = new Logger();
 
@@ -59,6 +58,12 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR)
+    {
+        std::cout << "Error main window: " << err << std::endl;
+    }
 
     // Creates the window (The two nullptrs are monitor and window respectively)
     //std::ostringstream msg;
@@ -83,6 +88,12 @@ int main() {
     glfwSetCursorPosCallback(window, MouseCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    err = glGetError();
+    if (err != GL_NO_ERROR)
+    {
+        std::cout << "Error main callback: " << err << std::endl;
+    }
+
     glewExperimental = GL_TRUE;
 
     if (glewInit() != GLEW_OK) {
@@ -93,15 +104,29 @@ int main() {
 
     glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+    err = glGetError();
+    if (err != GL_NO_ERROR)
+    {
+        std::cout << "Error main viewport: " << err << std::endl;
+    }
+
     glEnable(GL_DEPTH_TEST);
 
     //glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    err = glGetError();
+    if (err != GL_NO_ERROR)
+    {
+        std::cout << "Error main blend: " << err << std::endl;
+    }
+
     game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    arialText = Text("/home/jbraun/projects/blockregion/textures/arial.ttf", 20);
+    std::string textPath{TEXTURES_PATH};
+    textPath += "/arial.ttf";
+    Text arialText = Text(textPath.c_str(), 20);
 
     // Main program loop
     //LOG(INFO, "Entering main loop");

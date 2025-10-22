@@ -5,13 +5,13 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "shaders.h"
-#include "texture-loader.h"
+#include "shaders/block.h"
 
 using namespace std;
 
@@ -34,26 +34,33 @@ public:
     }
 
     // Constructor
-    Chunk_Mesh(vector<Block_Face> vertices, vector<Texture> textures) {
+    Chunk_Mesh(vector<Block_Face> vertices, bool ready = true) {
         this->readyToRender = false;
 
         this->vertices = vertices;
-        this->textures = textures;
 
-        // Now that we have all the required data, set the vertex buffers and its attribute pointers.
-        this->setupMesh();
-        this->readyToRender = true;
+        if (ready)
+        {
+            // Now that we have all the required data, set the vertex buffers and its attribute pointers.
+            this->setupMesh();
+            this->readyToRender = true;
+        }
     }
 
-    Chunk_Mesh(vector<Block_Face> vertices) {
-        this->readyToRender = false;
-
-        this->vertices = vertices;
+    void setShader(std::shared_ptr<shaders::Block> _shader)
+    {
+        shader = _shader;
     }
 
-    void doRender(Shader shader) {
+    void doRender() {
         if (readyToRender) {
-            Draw(shader);
+            Draw();
+        }
+        else
+        {
+            setupMesh();
+            readyToRender = true;
+            Draw();
         }
     }
 
@@ -61,17 +68,10 @@ public:
         return readyToRender;
     }
 
-    void doSetup(vector<Texture> textures) {
-        this->textures = textures;
-
-        this->setupMesh();
-        this->readyToRender = true;
-    }
-
 private:
     /*  Mesh Data  */
     vector<Block_Face> vertices;
-    vector<Texture> textures;
+    std::shared_ptr<shaders::Block> shader;
 
     /*  Render data  */
     GLuint VAO, VBO;
@@ -82,8 +82,8 @@ private:
     void setupMesh()
     {
         // Create buffers/arrays
-        glGenVertexArrays(1, &this->VAO);
-        glGenBuffers(1, &this->VBO);
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
 
         glBindVertexArray(this->VAO);
         // Load data into vertex buffers
@@ -108,51 +108,16 @@ private:
     }
 
     // Render the mesh
-    void Draw(Shader shader)
+    void Draw()
     {
-        shader.Use();
-
-        // Bind appropriate textures
-        GLuint diffuseNr = 1;
-        GLuint specularNr = 1;
-
-        for (GLuint i = 0; i < this->textures.size(); i++)
+        if (!shader)
         {
-            glActiveTexture(GL_TEXTURE0 + i); // Active proper texture unit before binding
-            // Retrieve texture number (the N in diffuse_textureN)
-            stringstream ss;
-            string number;
-            string name = this->textures[i].type;
-
-            if (name == "texture_diffuse")
-            {
-                ss << diffuseNr++; // Transfer GLuint to stream
-            }
-            else if (name == "texture_specular")
-            {
-                ss << specularNr++; // Transfer GLuint to stream
-            }
-
-            number = ss.str();
-            // Now set the sampler to the correct texture unit
-            glUniform1i(glGetUniformLocation(shader.getProgram(), (name + number).c_str()), i);
-            // And finally bind the texture
-            glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
+            std::cout << "TRIED TO DRAW CHUNK WITHOUT SHADER" << std::endl;
+            return;
         }
 
-        // Also set each mesh's shininess property to a default value (if you want you could extend this to another mesh property and possibly change this value)
-        glUniform1f(glGetUniformLocation(shader.getProgram(), "material.shininess"), 32.0f);
-
-        // Draw mesh
-        glBindVertexArray(this->VAO);
-        glDrawArrays(GL_POINTS, 0, vertices.size());
-        glBindVertexArray(0);
-
-        // Always good practice to set everything back to defaults once configured.
-        for (GLuint i = 0; i < this->textures.size(); i++)
-        {
-            glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
+        shader->bindTextures();
+        shader->draw(VAO, vertices.size());
+        shader->unbindTextures();
     }
 };

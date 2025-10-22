@@ -6,11 +6,12 @@
 Game::Game(int screenWidth, int screenHeight) {
 	//LOG(INFO, "Creating Game instance");
 
-	textureLoader = new Texture_Loader();
+	texLoader = std::make_shared<textures::Loader>();
+	blockShader = std::make_shared<shaders::Block>(texLoader);
 
 	loadShaders(screenWidth, screenHeight);
 
-	world = new World(textureLoader);
+	world = new World(blockShader);
 
 	player = new Player(world, glm::vec3(8.0f, 20.0f, 8.0f), glm::vec3(1, 2, 1));
 
@@ -21,7 +22,6 @@ Game::Game(int screenWidth, int screenHeight) {
 
 Game::~Game() {
 	//LOG(INFO, "Deleting");
-	delete textureLoader;
 }
 
 void Game::doInput(GLfloat deltaTime) {
@@ -50,17 +50,17 @@ void Game::doInput(GLfloat deltaTime) {
 void Game::doUpdate(GLfloat deltaTime) {
 	player->doUpdate(deltaTime);
 
-	blockShader.Use();
-	glUniformMatrix4fv(glGetUniformLocation(blockShader.getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(player->getViewMatrix()));
-	glUniform3f(glGetUniformLocation(blockShader.getProgram(), "viewPos"), player->getPosition().x, player->getPosition().y, player->getPosition().z);
+	blockShader->Use();
+	glUniformMatrix4fv(glGetUniformLocation(blockShader->getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(player->getViewMatrix()));
+	glUniform3f(glGetUniformLocation(blockShader->getProgram(), "viewPos"), player->getPosition().x, player->getPosition().y, player->getPosition().z);
 }
 
 void Game::doRender(Text* text) {
 	//std::string playerInfo = player->doUpdate();
 
-	blockShader.Use();
-	GLint modelLoc = glGetUniformLocation(blockShader.getProgram(), "model");
-	world->doRender(blockShader, modelLoc);
+	blockShader->Use();
+	GLint modelLoc = glGetUniformLocation(blockShader->getProgram(), "model");
+	world->doRender(modelLoc);
 
 	//text->RenderText(playerInfo, 25.0f, 225.0f, 1.0f, glm::vec3(1, 1, 1));
 
@@ -120,34 +120,15 @@ void Game::mouseCallback(GLFWwindow* window, double xPos, double yPos) {
 void Game::loadShaders(int screenWidth, int screenHeight) {
 	// TODO: make this modular so multiple shaders can be used
 	// Load block shader
-	blockShader = Shader("/home/jbraun/projects/blockregion/code/shaders/block.vert", "/home/jbraun/projects/blockregion/code/shaders/block.frag", "/home/jbraun/projects/blockregion/code/shaders/block.geom");
 
-	blockShader.Use();
-	glUniform1i(glGetUniformLocation(blockShader.getProgram(), "material.diffuse"), 0);
-	glUniform1i(glGetUniformLocation(blockShader.getProgram(), "material.specular"), 1);
-
-	int offsetArray[16] = { 0, 1, -1, 0, 1, 0, -1, 0, 1, -1, 0, 0, 0, 0, 0, 1 };
-	glm::mat4 offsetTransform = glm::make_mat4(offsetArray);
-	GLint offsetTransformLoc = glGetUniformLocation(blockShader.getProgram(), "offsetTransform");
-	glUniformMatrix4fv(offsetTransformLoc, 1, GL_FALSE, glm::value_ptr(offsetTransform));
-	
-	// Set the tile dimensions for this shader
-	std::pair<int, int> tileDims = textureLoader->getTextureTileDimensions("blocks");
-	glUniform2f(glGetUniformLocation(blockShader.getProgram(), "texDim"), tileDims.first, tileDims.second);
-
-	// Directional Light
-	GLint lightDirLoc = glGetUniformLocation(blockShader.getProgram(), "dirLight.direction");
-	glUniform3f(lightDirLoc, -10.0f, 10.0f, -10.0f);
-	glUniform3f(glGetUniformLocation(blockShader.getProgram(), "dirLight.ambient"), 0.2f, 0.2f, 0.2f);
-	glUniform3f(glGetUniformLocation(blockShader.getProgram(), "dirLight.diffuse"), 0.8f, 0.8f, 0.8f);
-	glUniform3f(glGetUniformLocation(blockShader.getProgram(), "dirLight.specular"), 1.0f, 1.0f, 1.0f);
+	blockShader->Use();
 
 	updateProjection(45.0f, screenWidth, screenHeight);
 }
 
 void Game::updateProjection(GLfloat fov, int screenWidth, int screenHeight) {
-	blockShader.Use();
+	blockShader->Use();
 	glm::mat4 projection(1);
 	projection = glm::perspective(45.0f, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 1000.0f);
-	glUniformMatrix4fv(glGetUniformLocation(blockShader.getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(glGetUniformLocation(blockShader->getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 }

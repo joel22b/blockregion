@@ -7,13 +7,14 @@ Chunk::Chunk() {
 	this->render = false;
 }
 
-Chunk::Chunk(Block_Consts* blockConsts, int xPos, int zPos) {
+Chunk::Chunk(Block_Consts* blockConsts, int xPos, int zPos, std::shared_ptr<shaders::Block> _shader) {
 	blocks = std::vector<std::vector<std::vector<Block>>>(CHUNK_MAX_WIDTH, std::vector<std::vector<Block>>(CHUNK_MAX_HEIGHT, std::vector<Block>(CHUNK_MAX_WIDTH, Block())));
 	this->blockConsts = blockConsts;
 	this->xPos = xPos;
 	this->zPos = zPos;
 	this->render = false;
 	this->toDelete = false;
+	this->shader = _shader;
 }
 
 Chunk::~Chunk() {
@@ -24,12 +25,12 @@ Chunk::~Chunk() {
 }
 
 void Chunk::doUpdate(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS, Chunk* chunkZNEG) {
-	std::vector<Texture> blockTextures = blockConsts->getBlockTextures();
 	std::vector<Block_Face> blockFaces = calculateMesh(chunkXPOS, chunkXNEG, chunkZPOS, chunkZNEG);
 
 	chuckMeshMutex.lock();
 	this->render = false;
-	Chunk_Mesh* newChunkMesh = new Chunk_Mesh(blockFaces, blockTextures);
+	Chunk_Mesh* newChunkMesh = new Chunk_Mesh(blockFaces);
+	newChunkMesh->setShader(shader);
 	if (chunkMesh != nullptr) {
 		Chunk_Mesh* oldChunkMesh = chunkMesh;
 		chunkMesh = newChunkMesh;
@@ -47,7 +48,8 @@ void Chunk::doPartialUpdate(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS
 
 	chuckMeshMutex.lock();
 	this->render = false;
-	Chunk_Mesh* newChunkMesh = new Chunk_Mesh(blockFaces);
+	Chunk_Mesh* newChunkMesh = new Chunk_Mesh(blockFaces, false);
+	newChunkMesh->setShader(shader);
 	if (chunkMesh != nullptr) {
 		Chunk_Mesh* oldChunkMesh = chunkMesh;
 		chunkMesh = newChunkMesh;
@@ -168,14 +170,14 @@ Chunk_Mesh* Chunk::getChunkMesh() {
 	return chunkMesh;
 }
 
-void Chunk::doRender(Shader shader, GLuint modelLoc) {
+void Chunk::doRender(GLuint modelLoc) {
 	chuckMeshMutex.lock();
 	if (chunkMesh != nullptr) {
 		if (!chunkMesh->ready()) {
-			chunkMesh->doSetup(blockConsts->getBlockTextures());
+			std::cout << "Chunk not ready" << std::endl;
 		}
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glm::translate(glm::mat4(1), glm::vec3(xPos * CHUNK_MAX_WIDTH, 0, zPos * CHUNK_MAX_WIDTH))));
-		chunkMesh->doRender(shader);
+		chunkMesh->doRender();
 	}
 	else {
 		//std::ostringstream msg;

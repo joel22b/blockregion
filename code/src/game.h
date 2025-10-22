@@ -2,7 +2,9 @@
 
 #include <vector>
 
+#ifndef GLEW_STATIC
 #define GLEW_STATIC
+#endif
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -11,9 +13,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "camera.h"
-#include "shaders.h"
+#include "shaders/block.h"
 #include "world.h"
-#include "texture-loader.h"
+#include "textures/loader.h"
 #include "text.h"
 
 #include "player.h"
@@ -21,8 +23,8 @@
 class Game {
 private:
 	//Camera camera;
-	Shader blockShader;
-	Texture_Loader* textureLoader;
+	std::shared_ptr<textures::Loader> texLoader;
+	std::shared_ptr<shaders::Block> blockShader;
 	World* world;
 
 	Player* player;

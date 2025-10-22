@@ -1,20 +1,83 @@
 # blockregion
-A minecraft style game built entirely from scratch
 
+A minecraft style game built entirely from scratch.
 
-## Requirements
+**Table of Contents**
 
+- [Building](#building)
+  - [Linux](#linux)
+  - [Windows](#windows)
+- [Release Notes](#release-notes)
+
+---
+
+# Building
+
+## Linux
+
+Install dependencies using your native package manager.
 ```
 sudo apt install \
     git \
     make \
     cmake \
     gcc-c++ \
-    libglew-dev \
-    libglfw3-dev \
     libgl-dev \
     libglu1-mesa-dev \
-    libglm-dev \
-    libfreetype-dev \
-    nlohmann-json3-dev
+    libxinerama-dev \
+    libxcursor-dev
 ```
+
+Clone the repo and navigate into the base directory.
+```
+cd /path/to/blockregion/
+```
+
+Create build directory.
+```
+mkdir build
+cd build
+```
+
+Create CMake project.
+```
+cmake ..
+```
+
+Build `blockregion`.
+```
+make -j blockregion
+```
+
+
+## Windows
+
+TODO: Add instructions for Windows build
+
+# Release Notes
+
+## v0.1.0 Shader and Texture Revamp
+
+Updated old shader and texture code to abstract dependencies and be more modular using the CRTP.
+- Created a Block and Text shader
+- Removed absolute paths and referenced to git repo base
+- Made texture loader with error checking
+- Windows build support
+- Improved build system with top level CMake
+- Added `errors` wrappers for `std::expected`
+- Shaders do error checking
+
+## v0.0.0 Blockzone port
+
+Transferred [Blockzone](https://github.com/joel22b/Blockzone) project to build on Linux as a base for this project.
+
+Goals:
+- Develop clean, modular code
+- Clean up project and fix long standing bugs
+- Implement a multiplayer system from scratch
+- Better world generation with rivers, mountains, and biomes
+- Menus and settings
+- Better lighting system
+- Skybox and clouds
+- Saving game system
+- Creatures
