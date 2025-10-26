@@ -2,15 +2,31 @@
     "textures": [
         {
             "name": "blocks",
-            "type": "diffuse",
+            "types": ["diffuse", "specular"],
             "tileWidth": 64,
-            "tileHeight": 64
-        },
-        {
-            "name": "blocks",
-            "type": "specular",
-            "tileWidth": 64,
-            "tileHeight": 64
+            "tileHeight": 64,
+            "tileCoords": [
+                {
+                    "name": "grass-top",
+                    "x": 0,
+                    "y": 0
+                },
+                {
+                    "name": "grass-side",
+                    "x": 1,
+                    "y": 0
+                },
+                {
+                    "name": "dirt",
+                    "x": 2,
+                    "y": 0
+                },
+                {
+                    "name": "magic",
+                    "x": 3,
+                    "y": 0
+                }
+            ]
         }
     ]
 }

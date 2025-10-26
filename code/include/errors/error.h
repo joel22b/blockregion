@@ -1,48 +1,9 @@
 #pragma once
 
-#include <string>
-#include <ostream>
+#include <errors/codes.h>
 
 namespace errors
 {
-
-enum Code
-{
-    Unknown = 0,
-    InvalidArgument,
-    InvalidOperation,
-    InvalidState,
-    Timeout,
-    InitializationError,
-};
-
-inline
-std::ostream&
-operator<<(std::ostream& os, const Code& code)
-{
-    switch (code)
-    {
-        case Code::Unknown:
-            os << "Unknown";
-            break;
-        case Code::InvalidArgument:
-            os << "InvalidArgument";
-            break;
-        case Code::InvalidOperation:
-            os << "InvalidOperation";
-            break;
-        case Code::InvalidState:
-            os << "InvalidState";
-            break;
-        case Code::Timeout:
-            os << "Timeout";
-            break;
-        default:
-            os << "undefined";
-            break;
-    }
-    return os;
-}
 
 class Error
 {

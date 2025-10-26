@@ -56,6 +56,10 @@ TODO: Add instructions for Windows build
 
 # Release Notes
 
+## v0.2.0
+
+- Moved texture tile coordinates to come from new texture system and configured from JSON
+
 ## v0.1.0 Shader and Texture Revamp
 
 Updated old shader and texture code to abstract dependencies and be more modular using the CRTP.

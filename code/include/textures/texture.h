@@ -3,11 +3,16 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
 
 #include <GL/glew.h>
 
+#include "glm/glm.hpp"
+
 namespace textures
 {
+
+using TileID = std::string;
 
 enum TextureType
 {
@@ -27,8 +32,10 @@ struct Texture
 struct TextureSet
 {
     std::shared_ptr<std::vector<Texture>> textures {};
-    int tileWidth {0};
-    int tileHeight {0};
+    int tileNumWidth {0};
+    int tileNumHeight {0};
+
+    std::map<TileID, glm::vec2> tileCoords;
 };
 
 /********************************

@@ -23,7 +23,6 @@ private:
 	std::vector<std::vector<std::vector<Block>>> blocks;
 	Chunk_Mesh* chunkMesh = nullptr;
 	std::mutex chuckMeshMutex;
-	Block_Consts* blockConsts;
 	int xPos, zPos;
 	bool render, toDelete;
 	std::shared_ptr<shaders::Block> shader;
@@ -31,6 +30,8 @@ private:
 	std::vector<Block_Face> calculateMesh(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS, Chunk* chunkZNEG);
 
 public:
+	Block_Consts* blockConsts;
+
 	Chunk();
 	Chunk(Block_Consts* blockConsts, int xPos, int zPos, std::shared_ptr<shaders::Block> _shader);
 	~Chunk();

@@ -9,9 +9,11 @@ Game::Game(int screenWidth, int screenHeight) {
 	texLoader = std::make_shared<textures::Loader>();
 	blockShader = std::make_shared<shaders::Block>(texLoader);
 
+	renderer = std::make_shared<renderer::Renderer>(texLoader, blockShader);
+
 	loadShaders(screenWidth, screenHeight);
 
-	world = new World(blockShader);
+	world = new World(blockShader, renderer);
 
 	player = new Player(world, glm::vec3(8.0f, 20.0f, 8.0f), glm::vec3(1, 2, 1));
 
@@ -59,8 +61,9 @@ void Game::doRender(Text* text) {
 	//std::string playerInfo = player->doUpdate();
 
 	blockShader->Use();
-	GLint modelLoc = glGetUniformLocation(blockShader->getProgram(), "model");
-	world->doRender(modelLoc);
+	renderer->renderAll();
+	//GLint modelLoc = glGetUniformLocation(blockShader->getProgram(), "model");
+	//world->doRender(modelLoc);
 
 	//text->RenderText(playerInfo, 25.0f, 225.0f, 1.0f, glm::vec3(1, 1, 1));
 

@@ -192,7 +192,7 @@ Block::loadTextures(std::shared_ptr<textures::Loader> texLoader)
     }
 
 	// Set the tile dimensions for this shader
-	glUniform2f(glGetUniformLocation(getProgram(), "texDim"), texSet.tileWidth, texSet.tileHeight);
+	glUniform2f(glGetUniformLocation(getProgram(), "texDim"), texSet.tileNumWidth, texSet.tileNumHeight);
     err = glGetError();
     if (err != GL_NO_ERROR)
     {

@@ -30,10 +30,11 @@ public:
 private:
     errors::expected<> parseJson(nlohmann::json textureArray);
     errors::expected<> loadTexture(std::string name, TextureType type,
-        int tileWidth, int tileHeight);
+        int tileWidth, int tileHeight, std::map<TileID, glm::vec2> tileCoords);
     errors::expected<GLuint> bindTexture(unsigned char* image,
         int textureWidth, int textureHeight);
-    errors::expected<> addTexture(std::string name, Texture& texture, int tileWidth, int tileHeight);
+    errors::expected<> addTexture(std::string name, Texture& texture,
+        int tileWidth, int tileHeight, std::map<TileID, glm::vec2> tileCoords);
 
     errors::expected<int> getTileNumWithinTexture(int textureSize, int tileSize);
 
@@ -109,9 +110,12 @@ errors::expected<>
 Loader::parseJson(nlohmann::json textureArray)
 {
     const std::string keyName {"name"};
-    const std::string keyType {"type"};
+    const std::string keyTypes {"types"};
     const std::string keyTileWidth {"tileWidth"};
     const std::string keyTileHeight {"tileHeight"};
+    const std::string keyTileCoords {"tileCoords"};
+    const std::string keyX {"x"};
+    const std::string keyY {"y"};
 
     for (nlohmann::json::iterator tx = textureArray.begin(); tx != textureArray.end(); ++tx)
     {
@@ -123,12 +127,11 @@ Loader::parseJson(nlohmann::json textureArray)
         std::string name = *(tx->find(keyName));
 
         // Has specular field check
-        if (!tx->contains(keyType))
+        if (!tx->contains(keyTypes))
         {
-            return errors::unexpected("Missing type field for texture in JSON:\n\r" + tx->dump(4), errors::Code::InvalidArgument);
+            return errors::unexpected("Missing types field for texture in JSON:\n\r" + tx->dump(4), errors::Code::InvalidArgument);
         }
-        std::string typeStr = *(tx->find(keyType));
-        TextureType type = toTextureType(typeStr);
+        std::vector<std::string> typeStrs = *(tx->find(keyTypes));
 
         // Slice width field check
         int tileWidth = -1;
@@ -152,10 +155,24 @@ Loader::parseJson(nlohmann::json textureArray)
             return errors::unexpected("Missing tile height field for texture in JSON:\n\r" + tx->dump(4), errors::Code::InvalidArgument);
         }
 
-        errors::expected<> retLoad = loadTexture(name, type, tileWidth, tileHeight);
-        if (errors::has_error(retLoad))
+        std::map<TileID, glm::vec2> tileCoords;
+        if (tx->contains(keyTileCoords))
         {
-            return errors::unexpected(retLoad.error());
+            for (auto tile: *(tx->find(keyTileCoords)))
+            {
+                tileCoords[*(tile.find(keyName))] = glm::vec2(*(tile.find(keyX)), *(tile.find(keyY)));
+            }
+        }
+
+        for (auto typeStr: typeStrs)
+        {
+            TextureType type = toTextureType(typeStr);
+            errors::expected<> retLoad = loadTexture(name, type,
+                tileWidth, tileHeight, tileCoords);
+            if (errors::has_error(retLoad))
+            {
+                return errors::unexpected(retLoad.error());
+            }
         }
     }
 
@@ -165,7 +182,8 @@ Loader::parseJson(nlohmann::json textureArray)
 inline
 errors::expected<>
 Loader::loadTexture(std::string name, 
-    TextureType type, int tileWidth, int tileHeight)
+    TextureType type, int tileWidth, int tileHeight,
+    std::map<TileID, glm::vec2> tileCoords)
 {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR)
@@ -224,7 +242,15 @@ Loader::loadTexture(std::string name,
         return errors::unexpected(tileNumHeight.error().prefix("Tile height deduction failed for ["+path.str()+"]: "));
     }
 
-    return addTexture(name, tex, tileNumWidth.value(), tileNumHeight.value());
+    // Normalize each tileCoords vector to be a fraction with the
+    // total number of tiles as the denominator
+    for (auto tile: tileCoords)
+    {
+        tile.second.x = tile.second.x / tileNumWidth.value();
+        tile.second.y = tile.second.y / tileNumHeight.value();
+    }
+
+    return addTexture(name, tex, tileNumWidth.value(), tileNumHeight.value(), std::move(tileCoords));
 }
 
 inline
@@ -290,42 +316,61 @@ Loader::bindTexture(unsigned char* image,
 
 inline
 errors::expected<>
-Loader::addTexture(std::string name, Texture& texture, int tileWidth, int tileHeight)
+Loader::addTexture(std::string name, Texture& texture,
+    int tileNumWidth, int tileNumHeight, std::map<TileID, glm::vec2> tileCoords)
 {
     if (auto tsIter = textureSets.find(name); tsIter != textureSets.end())
     {
-        // Error checking
-        if (tsIter->second.tileWidth != tileWidth)
+        // Error checking for tile count
+        if (tsIter->second.tileNumWidth != tileNumWidth)
         {
             std::string errMsg {"Textures have different tile widths for ["};
             errMsg += name;
             errMsg += "]: Existing=";
-            errMsg += std::to_string(tsIter->second.tileWidth);
+            errMsg += std::to_string(tsIter->second.tileNumWidth);
             errMsg += " New=";
-            errMsg += std::to_string(tileWidth);
+            errMsg += std::to_string(tileNumWidth);
             return errors::unexpected(errMsg, errors::Code::InvalidArgument);
         }
-        if (tsIter->second.tileHeight != tileHeight)
+        if (tsIter->second.tileNumHeight != tileNumHeight)
         {
             std::string errMsg {"Textures have different tile heights for ["};
             errMsg += name;
             errMsg += "]: Existing=";
-            errMsg += std::to_string(tsIter->second.tileHeight);
+            errMsg += std::to_string(tsIter->second.tileNumHeight);
             errMsg += " New=";
-            errMsg += std::to_string(tileHeight);
+            errMsg += std::to_string(tileNumHeight);
             return errors::unexpected(errMsg, errors::Code::InvalidArgument);
         }
+        
+        // Error checking for tile coordinates
+        if (tsIter->second.tileCoords.size() != tileCoords.size())
+        {
+            std::string errMsg {"Tile Coordinates maps have different sizes for ["};
+            errMsg += name;
+            errMsg += "]: Existing=";
+            errMsg += std::to_string(tsIter->second.tileCoords.size());
+            errMsg += " New=";
+            errMsg += std::to_string(tileCoords.size());
+            return errors::unexpected(errMsg, errors::Code::InvalidArgument);
+        }
+        if (tsIter->second.tileCoords != tileCoords)
+        {
+            return errors::unexpected("Tile Coordinates maps don't match for ["+name+"]", errors::Code::InvalidArgument);
+        }
 
+        // Exisiting tile info does not conflict with this tile
         tsIter->second.textures->emplace_back(texture);
     }
     else
     {
         // Create new entry
         TextureSet texSet;
-        texSet.tileWidth = tileWidth;
-        texSet.tileHeight = tileHeight;
+        texSet.tileNumWidth = tileNumWidth;
+        texSet.tileNumHeight = tileNumHeight;
         texSet.textures = std::make_shared<std::vector<Texture>>();
         texSet.textures->emplace_back(texture);
+        texSet.tileCoords = std::move(tileCoords);
         textureSets[name] = texSet;
     }
 
@@ -388,7 +433,9 @@ Loader::loadErrorTextures()
     // Load texture id for later use
     tex.id = texId.value();
 
-    errors::expected<> retAdd = addTexture("error", tex, 1, 1);
+    std::map<TileID, glm::vec2> tileCoords;
+
+    errors::expected<> retAdd = addTexture("error", tex, 1, 1, std::move(tileCoords));
     if (errors::has_error(retAdd))
     {
         std::cout << "Failed to add error texture to map: " << retAdd.error() << std::endl;

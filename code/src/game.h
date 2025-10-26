@@ -17,6 +17,7 @@
 #include "world.h"
 #include "textures/loader.h"
 #include "text.h"
+#include "renderer/renderer.h"
 
 #include "player.h"
 
@@ -25,6 +26,9 @@ private:
 	//Camera camera;
 	std::shared_ptr<textures::Loader> texLoader;
 	std::shared_ptr<shaders::Block> blockShader;
+
+	std::shared_ptr<renderer::Renderer> renderer;
+
 	World* world;
 
 	Player* player;
