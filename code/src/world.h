@@ -41,7 +41,7 @@ public:
 	std::string getWorldFolder();
 
 	void shiftChunks(int xPos, int zPos);
-	void shiftChunksThread(Block_Consts* blockConsts, int xPos, int zPos);
+	void shiftChunksThread(int xPos, int zPos);
 	void updateChunkRenderDistance(int renderDistance, int bufferDistance, int xPos, int zPos);
 
 private:
@@ -50,7 +50,6 @@ private:
 	std::mutex shiftMutex;
 	int chunkXOffset, chunkZOffset;
 	int renderDistance, bufferDistance, chunksLength;
-	Block_Consts* blockConsts;
 	const std::string worldName = "test";
 
 	void generateChunk(Chunk* chunk);

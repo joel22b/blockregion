@@ -116,6 +116,7 @@ Loader::parseJson(nlohmann::json textureArray)
     const std::string keyTileCoords {"tileCoords"};
     const std::string keyX {"x"};
     const std::string keyY {"y"};
+    const std::string keySides {"sides"};
 
     for (nlohmann::json::iterator tx = textureArray.begin(); tx != textureArray.end(); ++tx)
     {
@@ -160,7 +161,11 @@ Loader::parseJson(nlohmann::json textureArray)
         {
             for (auto tile: *(tx->find(keyTileCoords)))
             {
-                tileCoords[*(tile.find(keyName))] = glm::vec2(*(tile.find(keyX)), *(tile.find(keyY)));
+                glm::vec2 tileLoc = glm::vec2(*(tile.find(keyX)), *(tile.find(keyY)));
+                for (auto side: *(tile.find(keySides)))
+                {
+                    tileCoords[side] = tileLoc;
+                }
             }
         }
 
@@ -246,8 +251,8 @@ Loader::loadTexture(std::string name,
     // total number of tiles as the denominator
     for (auto tile: tileCoords)
     {
-        tile.second.x = tile.second.x / tileNumWidth.value();
-        tile.second.y = tile.second.y / tileNumHeight.value();
+        tileCoords[tile.first].x = tile.second.x / tileNumWidth.value();
+        tileCoords[tile.first].y = tile.second.y / tileNumHeight.value();
     }
 
     return addTexture(name, tex, tileNumWidth.value(), tileNumHeight.value(), std::move(tileCoords));

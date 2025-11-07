@@ -25,9 +25,7 @@ private:
 	bool toDelete;
 
 public:
-	Block_Consts* blockConsts;
-
-	Chunk(Block_Consts* blockConsts, int xPos, int zPos);
+	Chunk(int xPos, int zPos);
 	~Chunk();
 
 	void addBlock(glm::vec3 relPos, Block_Type type);

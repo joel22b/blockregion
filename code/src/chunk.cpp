@@ -1,8 +1,7 @@
 #include "chunk.h"
 
-Chunk::Chunk(Block_Consts* blockConsts, int xPos, int zPos) {
+Chunk::Chunk(int xPos, int zPos) {
 	blocks = std::vector<std::vector<std::vector<Block>>>(CHUNK_MAX_WIDTH, std::vector<std::vector<Block>>(CHUNK_MAX_HEIGHT, std::vector<Block>(CHUNK_MAX_WIDTH, Block())));
-	this->blockConsts = blockConsts;
 	this->xPos = xPos;
 	this->zPos = zPos;
 	this->toDelete = false;

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <ostream>
+#include <sstream>
 #include <vector>
 #include <memory>
 #include <map>
@@ -36,6 +38,14 @@ struct TextureSet
     int tileNumHeight {0};
 
     std::map<TileID, glm::vec2> tileCoords;
+
+    template <typename A, typename B>
+    glm::vec2 getTileCoords(A a, B b)
+    {
+        std::ostringstream query;
+		query << a << "_" << b;
+		return tileCoords[query.str()];
+    }
 };
 
 /********************************

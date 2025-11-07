@@ -153,6 +153,8 @@ Renderer::generateMesh(Chunk* pre)
     std::vector<Block_Face> blockFaces;
 	Block_Face blockFace;
 
+    textures::TextureSet texSet = texLoader->getTextureSet("blocks");
+
 	for (int x = 0; x < CHUNK_MAX_WIDTH; x++) {
 		for (int y = 0; y < CHUNK_MAX_HEIGHT; y++) {
 			for (int z = 0; z < CHUNK_MAX_WIDTH; z++) {
@@ -164,7 +166,7 @@ Renderer::generateMesh(Chunk* pre)
 						if (pre->getBlock(x - 1, y, z)->getType() != AIR) {
 							blockFace.Position = glm::vec3(x, y + 0.5f, z + 0.5f);
 							blockFace.Normal = glm::vec3(1, 0, 0);
-							blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(x - 1, y, z)->getType(), XPOS);
+                            blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x - 1, y, z)->getType(), XPOS);
 							blockFaces.push_back(blockFace);
 						}
 					}
@@ -173,7 +175,7 @@ Renderer::generateMesh(Chunk* pre)
 						if (pre->getBlock(x + 1, y, z)->getType() != AIR) {
 							blockFace.Position = glm::vec3(x + 1, y + 0.5f, z + 0.5f);
 							blockFace.Normal = glm::vec3(-1, 0, 0);
-							blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(x + 1, y, z)->getType(), XNEG);
+							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x + 1, y, z)->getType(), XNEG);
 							blockFaces.push_back(blockFace);
 						}
 					}
@@ -182,7 +184,7 @@ Renderer::generateMesh(Chunk* pre)
 						if (pre->getBlock(x, y - 1, z)->getType() != AIR) {
 							blockFace.Position = glm::vec3(x + 0.5f, y, z + 0.5f);
 							blockFace.Normal = glm::vec3(0, 1, 0);
-							blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(x, y - 1, z)->getType(), YPOS);
+							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y - 1, z)->getType(), YPOS);
 							blockFaces.push_back(blockFace);
 						}
 					}
@@ -191,7 +193,7 @@ Renderer::generateMesh(Chunk* pre)
 						if (pre->getBlock(x, y + 1, z)->getType() != AIR) {
 							blockFace.Position = glm::vec3(x + 0.5f, y + 1, z + 0.5f);
 							blockFace.Normal = glm::vec3(0, -1, 0);
-							blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(x, y + 1, z)->getType(), YNEG);
+							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y + 1, z)->getType(), YNEG);
 							blockFaces.push_back(blockFace);
 						}
 					}
@@ -200,7 +202,7 @@ Renderer::generateMesh(Chunk* pre)
 						if (pre->getBlock(x, y, z - 1)->getType() != AIR) {
 							blockFace.Position = glm::vec3(x + 0.5f, y + 0.5f, z);
 							blockFace.Normal = glm::vec3(0, 0, 1);
-							blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(x, y, z - 1)->getType(), ZPOS);
+							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y, z - 1)->getType(), ZPOS);
 							blockFaces.push_back(blockFace);
 						}
 					}
@@ -209,7 +211,7 @@ Renderer::generateMesh(Chunk* pre)
 						if (pre->getBlock(x, y, z + 1)->getType() != AIR) {
 							blockFace.Position = glm::vec3(x + 0.5f, y + 0.5f, z + 1);
 							blockFace.Normal = glm::vec3(0, 0, -1);
-							blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(x, y, z + 1)->getType(), ZNEG);
+							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y, z + 1)->getType(), ZNEG);
 							blockFaces.push_back(blockFace);
 						}
 					}
@@ -229,7 +231,7 @@ Renderer::generateMesh(Chunk* pre)
             {
                 blockFace.Position = glm::vec3(CHUNK_MAX_WIDTH, y + 0.5f, w + 0.5f);
                 blockFace.Normal = glm::vec3(1, 0, 0);
-                blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(CHUNK_MAX_WIDTH-1, y, w)->getType(), XPOS);
+                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(CHUNK_MAX_WIDTH-1, y, w)->getType(), XPOS);
                 blockFaces.push_back(blockFace);
             }
             // XNEG
@@ -237,7 +239,7 @@ Renderer::generateMesh(Chunk* pre)
             {
                 blockFace.Position = glm::vec3(0, y + 0.5f, w + 0.5f);
                 blockFace.Normal = glm::vec3(-1, 0, 0);
-                blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(0, y, w)->getType(), XNEG);
+                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(0, y, w)->getType(), XNEG);
                 blockFaces.push_back(blockFace);
             }
             // ZPOS
@@ -245,7 +247,7 @@ Renderer::generateMesh(Chunk* pre)
             {
                 blockFace.Position = glm::vec3(w + 0.5f, y + 0.5f, CHUNK_MAX_WIDTH);
                 blockFace.Normal = glm::vec3(0, 0, 1);
-                blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(w, y, CHUNK_MAX_WIDTH-1)->getType(), ZPOS);
+                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(w, y, CHUNK_MAX_WIDTH-1)->getType(), ZPOS);
                 blockFaces.push_back(blockFace);
             }
             // ZNEG
@@ -253,7 +255,7 @@ Renderer::generateMesh(Chunk* pre)
             {
                 blockFace.Position = glm::vec3(w + 0.5f, y + 0.5f, 0);
                 blockFace.Normal = glm::vec3(0, 0, -1);
-                blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(w, y, 0)->getType(), ZNEG);
+                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(w, y, 0)->getType(), ZNEG);
                 blockFaces.push_back(blockFace);
             }
         }
