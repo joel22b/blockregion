@@ -31,9 +31,6 @@ public:
 	World(std::shared_ptr<renderer::Renderer> _renderer);
 	~World();
 
-	void doUpdate();
-	void doRender(GLint modelLoc);
-
 	Chunk* getChunkByCoords(int xPos, int zPos);
 	glm::vec2 getChunkCoords(int xPos, int zPos);
 	Block* getBlock(int xPos, int yPos, int zPos);

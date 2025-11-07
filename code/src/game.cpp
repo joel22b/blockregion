@@ -60,10 +60,7 @@ void Game::doUpdate(GLfloat deltaTime) {
 void Game::doRender(Text* text) {
 	//std::string playerInfo = player->doUpdate();
 
-	blockShader->Use();
 	renderer->renderAll();
-	//GLint modelLoc = glGetUniformLocation(blockShader->getProgram(), "model");
-	//world->doRender(modelLoc);
 
 	//text->RenderText(playerInfo, 25.0f, 225.0f, 1.0f, glm::vec3(1, 1, 1));
 

@@ -15,10 +15,6 @@ World::World(std::shared_ptr<renderer::Renderer> _renderer) {
 World::~World() {
 }
 
-void World::doUpdate() {
-}
-
-
 Chunk* World::getChunk(int xPos, int zPos) {
 	int x = xPos + chunkXOffset;
 	int z = zPos + chunkZOffset;
