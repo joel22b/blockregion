@@ -13,7 +13,7 @@ Game::Game(int screenWidth, int screenHeight) {
 
 	loadShaders(screenWidth, screenHeight);
 
-	world = new World(blockShader, renderer);
+	world = new World(renderer);
 
 	player = new Player(world, glm::vec3(8.0f, 20.0f, 8.0f), glm::vec3(1, 2, 1));
 

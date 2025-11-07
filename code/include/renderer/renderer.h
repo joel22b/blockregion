@@ -103,7 +103,7 @@ Renderer::registerNew(T toRegister)
 
     RenderId id = getNewId();
     meshes.emplace(id, std::move(newMesh.value()));
-    std::cout << "registerNew Id=" << id << std::endl;
+    //std::cout << "registerNew Id=" << id << std::endl;
     return id;
 }
 
@@ -128,7 +128,7 @@ Renderer::registerExisting(RenderId id, T toRegister)
     }
 
     meshes[id] = std::move(newMesh.value());
-    std::cout << "registerExisting Id=" << id << std::endl;
+    //std::cout << "registerExisting Id=" << id << std::endl;
     return {};
 }
 

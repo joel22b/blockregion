@@ -21,29 +21,14 @@
 class Chunk {
 private:
 	std::vector<std::vector<std::vector<Block>>> blocks;
-	Chunk_Mesh* chunkMesh = nullptr;
-	std::mutex chuckMeshMutex;
 	int xPos, zPos;
-	bool render, toDelete;
-	std::shared_ptr<shaders::Block> shader;
-
-	std::vector<Block_Face> calculateMesh(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS, Chunk* chunkZNEG);
+	bool toDelete;
 
 public:
 	Block_Consts* blockConsts;
 
-	Chunk();
-	Chunk(Block_Consts* blockConsts, int xPos, int zPos, std::shared_ptr<shaders::Block> _shader);
+	Chunk(Block_Consts* blockConsts, int xPos, int zPos);
 	~Chunk();
-
-	Chunk_Mesh* getChunkMesh();
-
-	void doUpdate(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS, Chunk* chunkZNEG);
-	void doPartialUpdate(Chunk* chunkXPOS, Chunk* chunkXNEG, Chunk* chunkZPOS, Chunk* chunkZNEG);
-
-	void doRender(GLuint modelLoc);
-	bool shouldRender();
-	void setRender(bool render);
 
 	void addBlock(glm::vec3 relPos, Block_Type type);
 	void addBlock(int x, int y, int z, Block_Type type);

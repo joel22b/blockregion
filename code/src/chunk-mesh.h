@@ -104,7 +104,7 @@ private:
     // Initializes all the buffer objects/arrays
     void setupMesh()
     {
-        std::cout << "Setup Mesh" << std::endl;
+        //std::cout << "Setup Mesh" << std::endl;
         // Create buffers/arrays
         glGenVertexArrays(1, &VAO);
         GLenum err = glGetError();

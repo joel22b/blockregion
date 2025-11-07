@@ -12,7 +12,6 @@
 #include "chunk.h"
 #include "chunk-consts.h"
 #include "block-consts.h"
-#include "shaders/block.h"
 #include <renderer/renderer.h>
 
 struct ChunkData
@@ -29,7 +28,7 @@ struct ChunkData
 class World {
 public:
 	World();
-	World(std::shared_ptr<shaders::Block> _shader, std::shared_ptr<renderer::Renderer> _renderer);
+	World(std::shared_ptr<renderer::Renderer> _renderer);
 	~World();
 
 	void doUpdate();
@@ -65,6 +64,5 @@ private:
 
 	inline bool fileExists(const std::string& name);
 
-	std::shared_ptr<shaders::Block> shader;
 	std::shared_ptr<renderer::Renderer> renderer;
 };
