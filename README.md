@@ -56,9 +56,13 @@ TODO: Add instructions for Windows build
 
 # Release Notes
 
-## v0.2.0
+## v0.2.0 Rendering Engine
 
+<img src="docs/images/screenshot-v0.2.0.png" width="auto" height="200" />
+
+- Created Rendering Engine with API to register objects to be rendered, and all the rendering logic is abstracted
 - Moved texture tile coordinates to come from new texture system and configured from JSON
+- Removed all rendering logic that was imbended within world, chunk, and block classes
 
 ## v0.1.0 Shader and Texture Revamp
 
