@@ -1,7 +1,8 @@
 #pragma once
 
 #include <string>
-#include <map>
+#include <vector>
+#include <memory>
 
 #include "shaders/loader.h"
 #include "shaders/shader.h"
@@ -29,7 +30,7 @@ public:
     void bindTextures(glm::vec3 color);
     void unbindTextures();
 
-    void draw(GLuint VAO, GLuint VBO, std::map<char, Character> Characters, std::string text, float x, float y, float scale);
+    void draw(GLuint VAO, GLuint VBO, std::string text, float x, float y, float scale);
 
     // This should only be called by Shader class
     errors::expected<> attachShaders() const;
@@ -61,7 +62,7 @@ Text::unbindTextures()
 
 inline
 void
-Text::draw(GLuint VAO, GLuint VBO, std::map<char, Character> Characters, std::string text, float x, float y, float scale)
+Text::draw(GLuint VAO, GLuint VBO, std::string text, float x, float y, float scale)
 {
     glBindVertexArray(VAO);
 
@@ -69,13 +70,13 @@ Text::draw(GLuint VAO, GLuint VBO, std::map<char, Character> Characters, std::st
     std::string::const_iterator c;
     for (c = text.begin(); c != text.end(); c++)
     {
-        Character ch = Characters[*c];
+        textures::Texture ch = texs->at(*c);
 
-        float xpos = x + ch.Bearing.x * scale;
-        float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+        float xpos = x + ch.bearing.x * scale;
+        float ypos = y - (ch.size.y - ch.bearing.y) * scale;
 
-        float w = ch.Size.x * scale;
-        float h = ch.Size.y * scale;
+        float w = ch.size.x * scale;
+        float h = ch.size.y * scale;
         // update VBO for each character
         float vertices[6][4] = {
             { xpos,     ypos + h,   0.0f, 0.0f },
@@ -87,7 +88,7 @@ Text::draw(GLuint VAO, GLuint VBO, std::map<char, Character> Characters, std::st
             { xpos + w, ypos + h,   1.0f, 0.0f }
         };
         // render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+        glBindTexture(GL_TEXTURE_2D, ch.id);
         // update content of VBO memory
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
@@ -95,7 +96,7 @@ Text::draw(GLuint VAO, GLuint VBO, std::map<char, Character> Characters, std::st
         // render quad
         glDrawArrays(GL_TRIANGLES, 0, 6);
         // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+        x += (ch.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
     }
     glBindVertexArray(0);
 }
@@ -135,6 +136,11 @@ inline
 errors::expected<>
 Text::loadTextures(std::shared_ptr<textures::Loader> texLoader)
 {
+    Use();
+
+    textures::TextureSet texSet = texLoader->getTextureSet("arial");
+    texs = texSet.textures;
+
     return {};
 }
 

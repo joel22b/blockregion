@@ -190,6 +190,7 @@ private:
             return;
         }
 
+        shader->Use();
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelInfo));
         GLenum err = glGetError();
         if (err != GL_NO_ERROR)

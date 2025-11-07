@@ -19,7 +19,6 @@
 // Other includes
 #include "camera.h"
 #include "game.h"
-#include "text.h"
 
 //#include "src/utils/Logger.h"
 //#define LOG(severity, msg) Logger::log("main.cpp", severity, msg)
@@ -124,10 +123,6 @@ int main() {
 
     game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    std::string textPath{TEXTURES_PATH};
-    textPath += "/arial.ttf";
-    Text arialText = Text(textPath.c_str(), 20);
-
     // Main program loop
     //LOG(INFO, "Entering main loop");
     while (!glfwWindowShouldClose(window)) {
@@ -145,6 +140,8 @@ int main() {
             fpsText = "fps: " + to_string(1000.0 / mspf);
             nbFrames = 0;
             lastTime += 1.0;
+
+            game->updateFPS(fpsText, mspfText);
         }
 
         glfwPollEvents();
@@ -155,11 +152,7 @@ int main() {
 
         game->doUpdate(deltaTime);
 
-        game->doRender(&arialText);
-
-        arialText.RenderText(mspfText, 25.0f, 50.0f, 1.0f, glm::vec3(1, 1, 1));
-        arialText.RenderText(fpsText, 25.0f, 25.0f, 1.0f, glm::vec3(1, 1, 1));
-        // Drawing done above
+        game->doRender();
 
         glfwSwapBuffers(window);
     }

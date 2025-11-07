@@ -29,6 +29,11 @@ struct Texture
 {
     GLuint id;
     TextureType type {TextureType::Unknown};
+    
+    // Text only
+    glm::ivec2 size;
+    glm::ivec2 bearing;
+    uint32_t advance;
 };
 
 struct TextureSet

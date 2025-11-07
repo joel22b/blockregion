@@ -10,47 +10,19 @@
 
 // List all shaders
 #include <shaders/block.h>
+#include <shaders/text.h>
 
 // List all meshes
 #include "code/src/chunk-mesh.h"
+#include <meshes/text.h>
 
 #include "code/src/chunk.h"
+#include <text/text.h>
+
+#include <renderer/include.h>
 
 namespace renderer
 {
-
-using RenderId = uint32_t;
-using MeshTypes = std::variant<Chunk_Mesh>;
-
-class Renderer
-{
-public:
-    Renderer();
-    Renderer(std::shared_ptr<textures::Loader> _texLoader, std::shared_ptr<shaders::Block> _blockShader);
-
-    void renderAll();
-
-    template<typename T>
-    errors::expected<RenderId> registerNew(T toRegister);
-    template<typename T>
-    errors::expected<> registerExisting(RenderId id, T toRegister);
-    errors::expected<> unregister(RenderId id);
-
-private:
-    template<typename T>
-    errors::expected<std::unique_ptr<MeshTypes>> generateMesh(T pre);
-
-    RenderId getNewId();
-
-    std::shared_ptr<textures::Loader> texLoader;
-
-    // Shaders
-	std::shared_ptr<shaders::Block> blockShader;
-
-    std::map<RenderId, std::unique_ptr<MeshTypes>> meshes;
-
-    RenderId nextId {1};
-};
 
 /********************************
  * Definitions
@@ -63,6 +35,7 @@ Renderer::Renderer()
 
     // Shaders
 	blockShader = std::make_shared<shaders::Block>(texLoader);
+    textShader = std::make_shared<shaders::Text>(texLoader);
 }
 
 inline
@@ -70,6 +43,7 @@ Renderer::Renderer(std::shared_ptr<textures::Loader> _texLoader, std::shared_ptr
 {
     texLoader = _texLoader;
     blockShader = _blockShader;
+    textShader = std::make_shared<shaders::Text>(texLoader);
 }
 
 inline
@@ -79,6 +53,7 @@ Renderer::renderAll()
     struct MeshRenderer
     {
         void operator()(Chunk_Mesh& cMesh) const { cMesh.doRender(); }
+        void operator()(meshes::Text& mesh) const { mesh.render(); }
     };
 
     // TODO: Add locking
@@ -95,14 +70,14 @@ inline
 errors::expected<RenderId>
 Renderer::registerNew(T toRegister)
 {
-    errors::expected<std::unique_ptr<MeshTypes>> newMesh = generateMesh(toRegister);
+    errors::expected<std::shared_ptr<MeshTypes>> newMesh = generateMesh(toRegister);
     if (errors::has_error(newMesh))
     {
         return std::unexpected(newMesh.error().prefix("Renderer: registerNew: "));
     }
 
     RenderId id = getNewId();
-    meshes.emplace(id, std::move(newMesh.value()));
+    meshes.emplace(id, newMesh.value());
     //std::cout << "registerNew Id=" << id << std::endl;
     return id;
 }
@@ -121,13 +96,13 @@ Renderer::registerExisting(RenderId id, T toRegister)
         return errors::unexpected("Renderer: registerExisting: no mesh with Id="+std::to_string(id), errors::Code::NotFound);
     }
 
-    errors::expected<std::unique_ptr<MeshTypes>> newMesh = generateMesh(toRegister);
+    errors::expected<std::shared_ptr<MeshTypes>> newMesh = generateMesh(toRegister);
     if (errors::has_error(newMesh))
     {
         return std::unexpected(newMesh.error().prefix("Renderer: registerExisting: "));
     }
 
-    meshes[id] = std::move(newMesh.value());
+    meshes[id] = newMesh.value();
     //std::cout << "registerExisting Id=" << id << std::endl;
     return {};
 }
@@ -147,7 +122,7 @@ Renderer::unregister(RenderId id)
 
 template<>
 inline
-errors::expected<std::unique_ptr<MeshTypes>>
+errors::expected<std::shared_ptr<MeshTypes>>
 Renderer::generateMesh(Chunk* pre)
 {
     std::vector<Block_Face> blockFaces;
@@ -261,7 +236,7 @@ Renderer::generateMesh(Chunk* pre)
         }
     }
 
-    std::unique_ptr<MeshTypes> newMesh = std::make_unique<MeshTypes>(Chunk_Mesh(blockFaces, glGetUniformLocation(blockShader->getProgram(), "model"),
+    std::shared_ptr<MeshTypes> newMesh = std::make_shared<MeshTypes>(Chunk_Mesh(blockFaces, glGetUniformLocation(blockShader->getProgram(), "model"),
         glm::translate(glm::mat4(1), glm::vec3(pre->getXPos(), 0, pre->getZPos())), false));
 
     struct MeshVisitor
@@ -269,12 +244,22 @@ Renderer::generateMesh(Chunk* pre)
         std::shared_ptr<shaders::Block> blockShader;
 
         void operator()(Chunk_Mesh& cMesh) const { cMesh.setShader(blockShader); }
+        void operator()(meshes::Text& mesh) const {}
     };
 
     MeshVisitor mv;
     mv.blockShader = blockShader;
     std::visit(mv, *newMesh);
 
+    return newMesh;
+}
+
+template<>
+inline
+errors::expected<std::shared_ptr<MeshTypes>>
+Renderer::generateMesh(text::Text* text)
+{
+    std::shared_ptr<MeshTypes> newMesh = std::make_shared<MeshTypes>(meshes::Text(textShader, text->text, text->x, text->y, text->scale, text->color));
     return newMesh;
 }
 

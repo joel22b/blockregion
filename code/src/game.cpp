@@ -19,7 +19,15 @@ Game::Game(int screenWidth, int screenHeight) {
 
 	world->updateChunkRenderDistance(2, 1, player->getX(), player->getZ());
 
-	//LOG(INFO, "Finished creating Game instance");
+	// Create all the text for the game
+	textChunkCoords.initialize(renderer, "Chunk coord:", 25.0f, 200.0f, 0.5f, glm::vec3(1, 1, 1));
+	textKeysPressed.initialize(renderer, "Keys:", 25.0f, 175.0f, 0.5f, glm::vec3(1, 1, 1));
+	textCameraDirection.initialize(renderer, "Camera direction:", 25.0f, 150.0f, 0.5f, glm::vec3(1, 1, 1));
+	textCameraPosition.initialize(renderer, "Camera position:", 25.0f, 125.0f, 0.5f, glm::vec3(1, 1, 1));
+	textPlayerDirection.initialize(renderer, "Player direction:", 25.0f, 100.0f, 0.5f, glm::vec3(1, 1, 1));
+	textPlayerPosition.initialize(renderer, "Player position:", 25.0f, 75.0f, 0.5f, glm::vec3(1, 1, 1));
+	textMsPerFrame.initialize(renderer, "ms per frame:", 25.0f, 50.0f, 0.5f, glm::vec3(1, 1, 1));
+	textFps.initialize(renderer, "fps:", 25.0f, 25.0f, 0.5f, glm::vec3(1, 1, 1));
 }
 
 Game::~Game() {
@@ -57,7 +65,7 @@ void Game::doUpdate(GLfloat deltaTime) {
 	glUniform3f(glGetUniformLocation(blockShader->getProgram(), "viewPos"), player->getPosition().x, player->getPosition().y, player->getPosition().z);
 }
 
-void Game::doRender(Text* text) {
+void Game::doRender() {
 	//std::string playerInfo = player->doUpdate();
 
 	renderer->renderAll();
@@ -72,19 +80,25 @@ void Game::doRender(Text* text) {
 	else {
 		chunkCoord << "Chunk coord: x: " << chunk->getXPos() << " z: " << chunk->getZPos();
 	}
-	text->RenderText(chunkCoord.str(), 25.0f, 200.0f, 1.0f, glm::vec3(1, 1, 1));
+	textChunkCoords.updateText(chunkCoord.str());
 	keyPressed << "Keys: W: " << keys[GLFW_KEY_W] << " S: " << keys[GLFW_KEY_S] << " A: " << keys[GLFW_KEY_A] << " D: " << keys[GLFW_KEY_D];
-	text->RenderText(keyPressed.str(), 25.0f, 175.0f, 1.0f, glm::vec3(1, 1, 1));
+	textKeysPressed.updateText(keyPressed.str());
 
 	std::ostringstream playerPos, playerDir, camPos, camDir;
 	camDir << "Camera direction: x: " << player->getCameraDirection().x << " y: " << player->getCameraDirection().y << " z: " << player->getCameraDirection().z;
-	text->RenderText(camDir.str(), 25.0f, 150.0f, 1.0f, glm::vec3(1, 1, 1));
+	textCameraDirection.updateText(camDir.str());
 	camPos << "Camera position: x: " << player->getCameraPosition().x << " y: " << player->getCameraPosition().y << " z: " << player->getCameraPosition().z;
-	text->RenderText(camPos.str(), 25.0f, 125.0f, 1.0f, glm::vec3(1, 1, 1));
+	textCameraPosition.updateText(camPos.str());
 	playerDir << "Player direction: x: " << player->getDirection().x << " y: " << player->getDirection().y << " z: " << player->getDirection().z;
-	text->RenderText(playerDir.str(), 25.0f, 100.0f, 1.0f, glm::vec3(1, 1, 1));
+	textPlayerDirection.updateText(playerDir.str());
 	playerPos << "Player position: x: " << player->getPosition().x << " y: " << player->getPosition().y << " z: " << player->getPosition().z;
-	text->RenderText(playerPos.str(),25.0f, 75.0f, 1.0f, glm::vec3(1, 1, 1));
+	textPlayerPosition.updateText(playerPos.str());
+}
+
+void Game::updateFPS(std::string fpsStr, std::string msStr)
+{
+	textMsPerFrame.updateText(msStr);
+	textFps.updateText(fpsStr);
 }
 
 void Game::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
