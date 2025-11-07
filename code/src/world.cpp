@@ -14,33 +14,11 @@ World::World(std::shared_ptr<renderer::Renderer> _renderer) {
 }
 
 World::~World() {
-	//LOG(INFO, "Deleting");
 }
 
 void World::doUpdate() {
-	
 }
 
-void World::doRender(GLint modelLoc) {
-	/*if (chunksMutex.try_lock()) {
-		for (int i = 0; i < chunksLength * chunksLength; i++) {
-			if (chunks[i] != nullptr) {
-				//std::ostringstream msg;
-				//msg << "Rendering chunk " << i << " if possible";
-				//LOG(DEBUG, msg.str());
-				if (chunks[i]->chunk->shouldRender()) {
-					chunks[i]->doRender(modelLoc);
-				}
-			}
-			else {
-				//std::ostringstream msg;
-				//msg << "Cannot render i=" << i;
-				//LOG(WARN, msg.str());
-			}
-		}
-		chunksMutex.unlock();
-	}*/
-}
 
 Chunk* World::getChunk(int xPos, int zPos) {
 	int x = xPos + chunkXOffset;
@@ -322,10 +300,6 @@ void World::shiftChunksThread(Block_Consts* blockConsts, int xPos, int zPos) {
 				if (i + shiftDist >= chunksLength * chunksLength) {
 					saveChunk(chunk->chunk);
 					chunk->chunk->setDelete();
-
-					//std::ostringstream msg;
-					//msg << "Marking chunk for delete c2 " << i;
-					//LOG(DEBUG, msg.str());
 				}
 				else {
 					chunksTemp[i + shiftDist] = chunk;
@@ -335,9 +309,7 @@ void World::shiftChunksThread(Block_Consts* blockConsts, int xPos, int zPos) {
 			// Load new data
 			for (int i = 0; i < shiftDist; i++) {
 				if (chunksTemp[i] != nullptr) {
-					//std::ostringstream msg;
-					//msg << "i=" << i << " shiftDist=" << shiftDist << " chunksLength=" << chunksLength;
-					//LOG(INFO, msg.str());
+					std::cout << "Lading chunk but already exists X: i=" << i << " shiftDist=" << shiftDist << " chunksLength=" << chunksLength << std::endl;
 				}
 				else {
 					int chunkX = (int)(i / chunksLength) - chunkXOffsetNew;
@@ -364,10 +336,6 @@ void World::shiftChunksThread(Block_Consts* blockConsts, int xPos, int zPos) {
 				if ((int)((i + shiftDist) / chunksLength) != (int)(i / chunksLength) || i + shiftDist < 0) {
 					saveChunk(chunk->chunk);
 					chunk->chunk->setDelete();
-
-					//std::ostringstream msg;
-					//msg << "Marking chunk for delete c3 " << i;
-					//LOG(DEBUG, msg.str());
 				}
 				else {
 					chunksTemp[i + shiftDist] = chunk;
@@ -378,9 +346,8 @@ void World::shiftChunksThread(Block_Consts* blockConsts, int xPos, int zPos) {
 			for (int i = 0; i < chunksLength * chunksLength; i++) {
 				if (i % chunksLength >= chunksLength + shiftDist) {
 					if (chunksTemp[i] != nullptr) {
-						//std::ostringstream msg;
-						//msg << "i=" << i << " shiftDist=" << shiftDist << " chunksLength=" << chunksLength;
-						//LOG(INFO, msg.str());
+
+						std::cout << "Lading chunk but already exists Z: i=" << i << " shiftDist=" << shiftDist << " chunksLength=" << chunksLength << std::endl;
 					}
 					int chunkX = (int)(i / chunksLength) - chunkXOffsetNew;
 					int chunkZ = i % chunksLength - chunkZOffsetNew;

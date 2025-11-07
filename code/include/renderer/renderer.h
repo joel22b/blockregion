@@ -218,10 +218,49 @@ Renderer::generateMesh(Chunk* pre)
 		}
 	}
 
+    // TODO: Do properly
+    // Temp fix for chunk borders: Assume AIR if outside curr chunk
+    for (int w = 0; w < CHUNK_MAX_WIDTH; w++)
+    {
+        for (int y = 0; y < CHUNK_MAX_HEIGHT; y++)
+        {
+            // XPOS
+            if (pre->getBlock(CHUNK_MAX_WIDTH-1, y, w)->getType() != AIR)
+            {
+                blockFace.Position = glm::vec3(CHUNK_MAX_WIDTH, y + 0.5f, w + 0.5f);
+                blockFace.Normal = glm::vec3(1, 0, 0);
+                blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(CHUNK_MAX_WIDTH-1, y, w)->getType(), XPOS);
+                blockFaces.push_back(blockFace);
+            }
+            // XNEG
+            if (pre->getBlock(0, y, w)->getType() != AIR)
+            {
+                blockFace.Position = glm::vec3(0, y + 0.5f, w + 0.5f);
+                blockFace.Normal = glm::vec3(-1, 0, 0);
+                blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(0, y, w)->getType(), XNEG);
+                blockFaces.push_back(blockFace);
+            }
+            // ZPOS
+            if (pre->getBlock(w, y, CHUNK_MAX_WIDTH-1)->getType() != AIR)
+            {
+                blockFace.Position = glm::vec3(w + 0.5f, y + 0.5f, CHUNK_MAX_WIDTH);
+                blockFace.Normal = glm::vec3(0, 0, 1);
+                blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(w, y, CHUNK_MAX_WIDTH-1)->getType(), ZPOS);
+                blockFaces.push_back(blockFace);
+            }
+            // ZNEG
+            if (pre->getBlock(w, y, 0)->getType() != AIR)
+            {
+                blockFace.Position = glm::vec3(w + 0.5f, y + 0.5f, 0);
+                blockFace.Normal = glm::vec3(0, 0, -1);
+                blockFace.TexCoords = pre->blockConsts->getBlockTexCoords(pre->getBlock(w, y, 0)->getType(), ZNEG);
+                blockFaces.push_back(blockFace);
+            }
+        }
+    }
+
     std::unique_ptr<MeshTypes> newMesh = std::make_unique<MeshTypes>(Chunk_Mesh(blockFaces, glGetUniformLocation(blockShader->getProgram(), "model"),
         glm::translate(glm::mat4(1), glm::vec3(pre->getXPos(), 0, pre->getZPos())), false));
-    //Chunk_Mesh cMesh = std::get<Chunk_Mesh>(*newMesh);
-    //cMesh.setShader(blockShader);
 
     struct MeshVisitor
     {
