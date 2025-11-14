@@ -13,7 +13,6 @@
 
 #include "block-consts.h"
 #include "chunk-consts.h"
-#include "chunk-mesh.h"
 #include "block.h"
 
 #include "shaders/block.h"

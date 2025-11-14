@@ -32,9 +32,11 @@ target_link_libraries(${EXE} PRIVATE
     soil2
     glm::glm
     nlohmann_json::nlohmann_json
+    spdlog::spdlog
 )
 
 target_compile_definitions(${EXE} PUBLIC
+    -DVERSION_STRING="${VERSION_STRING}"
     -DSHADERS_PATH="${GIT_REPO_BASE}/code/shaders/"
     -DTEXTURES_PATH="${GIT_REPO_BASE}/textures/"
 )

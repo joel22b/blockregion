@@ -13,7 +13,7 @@
 #include <shaders/text.h>
 
 // List all meshes
-#include "code/src/chunk-mesh.h"
+#include <meshes/chunk-mesh.h>
 #include <meshes/text.h>
 
 #include "code/src/chunk.h"

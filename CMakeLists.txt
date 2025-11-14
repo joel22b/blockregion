@@ -3,6 +3,15 @@ cmake_minimum_required(VERSION 3.22)
 project(Blockregion LANGUAGES CXX)
 
 #######################################################
+# Version number
+#######################################################
+set(MAJOR "0")
+set(MINOR "2")
+set(REV   "0")
+set(VERSION_STRING "${MAJOR}.${MINOR}.${REV}")
+message(STATUS "Version: ${VERSION_STRING}")
+
+#######################################################
 # Find top level directory
 #######################################################
 find_package(Git REQUIRED)
@@ -40,6 +49,7 @@ find_package(glm REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(Spdlog REQUIRED)
 
 #######################################################
 # Add subdirectories

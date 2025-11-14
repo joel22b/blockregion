@@ -4,7 +4,7 @@
 #include <variant>
 
 // List all meshes
-#include "code/src/chunk-mesh.h"
+#include <meshes/chunk-mesh.h>
 #include <meshes/text.h>
 
 namespace renderer
