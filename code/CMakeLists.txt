@@ -6,11 +6,9 @@ set(EXE blockregion)
 add_executable(${EXE}
     src/main.cpp
     src/game.cpp
-    src/world.cpp
+    include/world/world.cpp
     src/entity.cpp
     src/player.cpp
-    src/block.cpp
-    src/chunk.cpp
     src/collision-detection.cpp
 )
 

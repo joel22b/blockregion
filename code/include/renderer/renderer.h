@@ -16,7 +16,7 @@
 #include <meshes/chunk-mesh.h>
 #include <meshes/text.h>
 
-#include "code/src/chunk.h"
+#include <world/chunk.h>
 #include <text/text.h>
 
 #include <renderer/include.h>
@@ -123,70 +123,70 @@ Renderer::unregister(RenderId id)
 template<>
 inline
 errors::expected<std::shared_ptr<MeshTypes>>
-Renderer::generateMesh(Chunk* pre)
+Renderer::generateMesh(world::Chunk* pre)
 {
     std::vector<Block_Face> blockFaces;
 	Block_Face blockFace;
 
     textures::TextureSet texSet = texLoader->getTextureSet("blocks");
 
-	for (int x = 0; x < CHUNK_MAX_WIDTH; x++) {
-		for (int y = 0; y < CHUNK_MAX_HEIGHT; y++) {
-			for (int z = 0; z < CHUNK_MAX_WIDTH; z++) {
-				if (pre->getBlock(x, y, z)->getType() == AIR) {
+	for (int x = 0; x < world::CHUNK_MAX_WIDTH; x++) {
+		for (int y = 0; y < world::CHUNK_MAX_HEIGHT; y++) {
+			for (int z = 0; z < world::CHUNK_MAX_WIDTH; z++) {
+				if (pre->getBlock(x, y, z)->getType() == world::AIR) {
 					// Add surrounding faces
 
 					// XPOS
 					if (x != 0) {
-						if (pre->getBlock(x - 1, y, z)->getType() != AIR) {
+						if (pre->getBlock(x - 1, y, z)->getType() != world::AIR) {
 							blockFace.Position = glm::vec3(x, y + 0.5f, z + 0.5f);
 							blockFace.Normal = glm::vec3(1, 0, 0);
-                            blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x - 1, y, z)->getType(), XPOS);
+                            blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x - 1, y, z)->getType(), world::XPOS);
 							blockFaces.push_back(blockFace);
 						}
 					}
 					// XNEG
-					if (x != CHUNK_MAX_WIDTH - 1) {
-						if (pre->getBlock(x + 1, y, z)->getType() != AIR) {
+					if (x != world::CHUNK_MAX_WIDTH - 1) {
+						if (pre->getBlock(x + 1, y, z)->getType() != world::AIR) {
 							blockFace.Position = glm::vec3(x + 1, y + 0.5f, z + 0.5f);
 							blockFace.Normal = glm::vec3(-1, 0, 0);
-							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x + 1, y, z)->getType(), XNEG);
+							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x + 1, y, z)->getType(), world::XNEG);
 							blockFaces.push_back(blockFace);
 						}
 					}
 					// YPOS
 					if (y != 0) {
-						if (pre->getBlock(x, y - 1, z)->getType() != AIR) {
+						if (pre->getBlock(x, y - 1, z)->getType() != world::AIR) {
 							blockFace.Position = glm::vec3(x + 0.5f, y, z + 0.5f);
 							blockFace.Normal = glm::vec3(0, 1, 0);
-							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y - 1, z)->getType(), YPOS);
+							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y - 1, z)->getType(), world::YPOS);
 							blockFaces.push_back(blockFace);
 						}
 					}
 					// YNEG
-					if (y != CHUNK_MAX_HEIGHT - 1) {
-						if (pre->getBlock(x, y + 1, z)->getType() != AIR) {
+					if (y != world::CHUNK_MAX_HEIGHT - 1) {
+						if (pre->getBlock(x, y + 1, z)->getType() != world::AIR) {
 							blockFace.Position = glm::vec3(x + 0.5f, y + 1, z + 0.5f);
 							blockFace.Normal = glm::vec3(0, -1, 0);
-							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y + 1, z)->getType(), YNEG);
+							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y + 1, z)->getType(), world::YNEG);
 							blockFaces.push_back(blockFace);
 						}
 					}
 					// ZPOS
 					if (z != 0) {
-						if (pre->getBlock(x, y, z - 1)->getType() != AIR) {
+						if (pre->getBlock(x, y, z - 1)->getType() != world::AIR) {
 							blockFace.Position = glm::vec3(x + 0.5f, y + 0.5f, z);
 							blockFace.Normal = glm::vec3(0, 0, 1);
-							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y, z - 1)->getType(), ZPOS);
+							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y, z - 1)->getType(), world::ZPOS);
 							blockFaces.push_back(blockFace);
 						}
 					}
 					// ZNEG
-					if (z != CHUNK_MAX_WIDTH - 1) {
-						if (pre->getBlock(x, y, z + 1)->getType() != AIR) {
+					if (z != world::CHUNK_MAX_WIDTH - 1) {
+						if (pre->getBlock(x, y, z + 1)->getType() != world::AIR) {
 							blockFace.Position = glm::vec3(x + 0.5f, y + 0.5f, z + 1);
 							blockFace.Normal = glm::vec3(0, 0, -1);
-							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y, z + 1)->getType(), ZNEG);
+							blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(x, y, z + 1)->getType(), world::ZNEG);
 							blockFaces.push_back(blockFace);
 						}
 					}
@@ -197,40 +197,40 @@ Renderer::generateMesh(Chunk* pre)
 
     // TODO: Do properly
     // Temp fix for chunk borders: Assume AIR if outside curr chunk
-    for (int w = 0; w < CHUNK_MAX_WIDTH; w++)
+    for (int w = 0; w < world::CHUNK_MAX_WIDTH; w++)
     {
-        for (int y = 0; y < CHUNK_MAX_HEIGHT; y++)
+        for (int y = 0; y < world::CHUNK_MAX_HEIGHT; y++)
         {
             // XPOS
-            if (pre->getBlock(CHUNK_MAX_WIDTH-1, y, w)->getType() != AIR)
+            if (pre->getBlock(world::CHUNK_MAX_WIDTH-1, y, w)->getType() != world::AIR)
             {
-                blockFace.Position = glm::vec3(CHUNK_MAX_WIDTH, y + 0.5f, w + 0.5f);
+                blockFace.Position = glm::vec3(world::CHUNK_MAX_WIDTH, y + 0.5f, w + 0.5f);
                 blockFace.Normal = glm::vec3(1, 0, 0);
-                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(CHUNK_MAX_WIDTH-1, y, w)->getType(), XPOS);
+                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(world::CHUNK_MAX_WIDTH-1, y, w)->getType(), world::XPOS);
                 blockFaces.push_back(blockFace);
             }
             // XNEG
-            if (pre->getBlock(0, y, w)->getType() != AIR)
+            if (pre->getBlock(0, y, w)->getType() != world::AIR)
             {
                 blockFace.Position = glm::vec3(0, y + 0.5f, w + 0.5f);
                 blockFace.Normal = glm::vec3(-1, 0, 0);
-                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(0, y, w)->getType(), XNEG);
+                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(0, y, w)->getType(), world::XNEG);
                 blockFaces.push_back(blockFace);
             }
             // ZPOS
-            if (pre->getBlock(w, y, CHUNK_MAX_WIDTH-1)->getType() != AIR)
+            if (pre->getBlock(w, y, world::CHUNK_MAX_WIDTH-1)->getType() != world::AIR)
             {
-                blockFace.Position = glm::vec3(w + 0.5f, y + 0.5f, CHUNK_MAX_WIDTH);
+                blockFace.Position = glm::vec3(w + 0.5f, y + 0.5f, world::CHUNK_MAX_WIDTH);
                 blockFace.Normal = glm::vec3(0, 0, 1);
-                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(w, y, CHUNK_MAX_WIDTH-1)->getType(), ZPOS);
+                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(w, y, world::CHUNK_MAX_WIDTH-1)->getType(), world::ZPOS);
                 blockFaces.push_back(blockFace);
             }
             // ZNEG
-            if (pre->getBlock(w, y, 0)->getType() != AIR)
+            if (pre->getBlock(w, y, 0)->getType() != world::AIR)
             {
                 blockFace.Position = glm::vec3(w + 0.5f, y + 0.5f, 0);
                 blockFace.Normal = glm::vec3(0, 0, -1);
-                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(w, y, 0)->getType(), ZNEG);
+                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(w, y, 0)->getType(), world::ZNEG);
                 blockFaces.push_back(blockFace);
             }
         }

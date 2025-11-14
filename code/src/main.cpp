@@ -67,6 +67,7 @@ int main() {
 
         logger = std::make_shared<spdlog::logger>("blockregion", std::begin(sinks), std::end(sinks));
         spdlog::register_logger(logger);
+        spdlog::set_level(spdlog::level::trace);
         spdlog::flush_every(std::chrono::seconds(1));
 
         logger->debug("Logger created successfully");

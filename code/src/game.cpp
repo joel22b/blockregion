@@ -13,7 +13,7 @@ Game::Game(int screenWidth, int screenHeight) {
 
 	loadShaders(screenWidth, screenHeight);
 
-	world = new World(renderer);
+	world = new world::World(renderer);
 
 	player = new Player(world, glm::vec3(8.0f, 20.0f, 8.0f), glm::vec3(1, 2, 1));
 
@@ -73,7 +73,7 @@ void Game::doRender() {
 	//text->RenderText(playerInfo, 25.0f, 225.0f, 1.0f, glm::vec3(1, 1, 1));
 
 	std::ostringstream keyPressed, chunkCoord;
-	Chunk* chunk = world->getChunkByCoords(player->getPosition().x, player->getPosition().z);
+	world::Chunk* chunk = world->getChunkByCoords(player->getPosition().x, player->getPosition().z);
 	if (chunk == nullptr) {
 		chunkCoord << "Chunk coord: NULL";
 	}

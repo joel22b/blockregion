@@ -9,10 +9,13 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/noise.hpp"
 
-#include "chunk.h"
-#include "chunk-consts.h"
-#include "block-consts.h"
+#include "world/chunk.h"
+#include "world/block.h"
+
 #include <renderer/renderer.h>
+
+namespace world
+{
 
 struct ChunkData
 {
@@ -62,3 +65,5 @@ private:
 
 	std::shared_ptr<renderer::Renderer> renderer;
 };
+
+} // namespace world

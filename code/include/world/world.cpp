@@ -1,7 +1,12 @@
-#include "world.h"
+#include "world/world.h"
+
+#include <spdlog/spdlog.h>
 
 //#include "../utils/Logger.h"
 //#define LOG(severity, msg) Logger::log("World.cpp", severity, msg)
+
+namespace world
+{
 
 World::World() {}
 
@@ -55,7 +60,7 @@ Block* World::getBlock(int xPos, int yPos, int zPos) {
 }
 
 std::string World::getWorldFolder() {
-	return "saves\\" + worldName + "\\";
+	return "saves/" + worldName + "/";
 }
 
 void World::generateChunk(Chunk* chunk) {
@@ -83,7 +88,7 @@ void World::generateChunk(Chunk* chunk) {
 
 void World::loadChunk(Chunk* chunk) {
 	// Check if chunk file exists
-	const std::string chunkFilePath = getWorldFolder() + "chunks\\x" + std::to_string(chunk->getChunkXPos()) + "z" + std::to_string(chunk->getChunkZPos()) + ".chunk";
+	const std::string chunkFilePath = getWorldFolder() + "chunks/x" + std::to_string(chunk->getChunkXPos()) + "z" + std::to_string(chunk->getChunkZPos()) + ".chunk";
 	if (fileExists(chunkFilePath)) {
 		// Load in chunk from file
 		std::string fileData;
@@ -132,7 +137,10 @@ void World::loadChunk(Chunk* chunk) {
 }
 
 void World::saveChunk(Chunk* chunk) {
-	const std::string chunkFilePath = getWorldFolder() + "chunks\\x" + std::to_string(chunk->getChunkXPos()) + "z" + std::to_string(chunk->getChunkZPos()) + ".chunk";
+	const std::string chunkFilePath = getWorldFolder() + "chunks/x" + std::to_string(chunk->getChunkXPos()) + "z" + std::to_string(chunk->getChunkZPos()) + ".chunk";
+	
+	shared_ptr<spdlog::logger> logger = spdlog::get("blockregion");
+	logger->trace("Saving chunk x={} z={} to [{}]", chunk->getChunkXPos(), chunk->getChunkZPos(), chunkFilePath);
 
 	// Put all chunk data into a string
 	std::string chunkData = "";
@@ -158,7 +166,7 @@ void World::saveChunk(Chunk* chunk) {
 		file.close();
 	}
 	catch (std::ofstream::failure e) {
-		//LOG(ERROR, "File not able to be successfully written in saveChunk: \"" + chunkFilePath + "\"");
+		logger->error("File not able to be successfully written in saveChunk [{}]: {}", chunkFilePath, e.what());
 		return;
 	}
 }
@@ -498,3 +506,5 @@ void World::updateChunkRenderDistance(int renderDistance, int bufferDistance, in
 		}
 	}
 }
+
+} // namespace world

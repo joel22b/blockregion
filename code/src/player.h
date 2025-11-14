@@ -23,7 +23,7 @@ enum Player_Movement {
 class Player: public Entity {
 public:
 	Player();
-	Player(World* world, glm::vec3 position, glm::vec3 dimentions, GLfloat yaw = 0.0f, GLfloat pitch = 0.0f, bool flying = true, float speed = 6.0f, float jumpSpeed = 6.0f);
+	Player(world::World* world, glm::vec3 position, glm::vec3 dimentions, GLfloat yaw = 0.0f, GLfloat pitch = 0.0f, bool flying = true, float speed = 6.0f, float jumpSpeed = 6.0f);
 
 	void processKeyboardInput(Player_Movement movement, GLfloat deltaTime);
 	void processMouseInput(GLfloat xOffset, GLfloat yOffset, GLboolean constrainPitch = true);

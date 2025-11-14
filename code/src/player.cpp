@@ -7,7 +7,7 @@ Player::Player() : Entity() {
 	camera = nullptr;
 }
 
-Player::Player(World* world, glm::vec3 position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed) : Entity(world, position, dimentions, yaw, pitch, flying, speed, jumpSpeed) {
+Player::Player(world::World* world, glm::vec3 position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed) : Entity(world, position, dimentions, yaw, pitch, flying, speed, jumpSpeed) {
 	camera = new Camera(position);
 	camera->setCameraVectors(position + glm::vec3(0, 1, 0), front, right, up);
 

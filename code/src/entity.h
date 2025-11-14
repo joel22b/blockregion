@@ -11,13 +11,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "collision-detection.h"
-#include "world.h"
-#include "block.h"
+#include "world/world.h"
+#include "world/block.h"
 
 class Entity {
 public:
 	Entity();
-	Entity(World* world, glm::vec3 position, glm::vec3 dimentions, GLfloat yaw = 0.0f, GLfloat pitch = 0.0f, bool flying = false, float speed = 6.0f, float jumpSpeed = 6.0f);
+	Entity(world::World* world, glm::vec3 position, glm::vec3 dimentions, GLfloat yaw = 0.0f, GLfloat pitch = 0.0f, bool flying = false, float speed = 6.0f, float jumpSpeed = 6.0f);
 	~Entity();
 
 	virtual void doUpdate(GLfloat deltaTime);
@@ -29,7 +29,7 @@ public:
 	float getZ();
 	
 protected:
-	World* world;
+	world::World* world;
 
 	glm::vec3 position, dimentions, front, frontHor, worldUp, up, right;
 	glm::vec3 potentialPos, velocity;
