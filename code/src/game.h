@@ -12,11 +12,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "renderer/renderer.h"
+
+#include "text/text.h"
+
 #include "camera.h"
 #include "shaders/block.h"
 #include "world/world.h"
 #include "textures/loader.h"
-#include "renderer/renderer.h"
 
 #include "player.h"
 

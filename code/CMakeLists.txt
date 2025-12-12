@@ -1,15 +1,21 @@
 #######################################################
+# Get all source files
+#######################################################
+file(GLOB_RECURSE BLOCKREGION_SOURCE_FILES "*.cpp")
+
+#######################################################
 # Blockregion
 #######################################################
 set(EXE blockregion)
 
 add_executable(${EXE}
-    src/main.cpp
-    src/game.cpp
-    include/world/world.cpp
-    src/entity.cpp
-    src/player.cpp
-    src/collision-detection.cpp
+    ${BLOCKREGION_SOURCE_FILES}
+    #src/main.cpp
+    #src/game.cpp
+    #include/world/world.cpp
+    #src/entity.cpp
+    #src/player.cpp
+    #src/collision-detection.cpp
 )
 
 target_include_directories(${EXE} PUBLIC 

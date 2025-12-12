@@ -13,7 +13,7 @@
 
 #include "world/block.h"
 
-#include "shaders/block.h"
+#include <renderer/types.h>
 
 namespace world
 {
@@ -26,6 +26,8 @@ private:
 	std::vector<std::vector<std::vector<Block>>> blocks;
 	int xPos, zPos;
 	bool toDelete {false};
+
+	renderer::RenderId renderId;
 
 public:
 	Chunk(int xPos, int zPos);

@@ -2,6 +2,8 @@
 
 #include <errors/codes.h>
 
+#include <spdlog/fmt/fmt.h>
+
 namespace errors
 {
 
@@ -38,3 +40,42 @@ private:
 };
 
 } // namespace errors
+
+/*namespace fmt
+{
+
+template <>
+struct formatter<errors::Error>
+{
+    /*template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx)
+    {
+        return ctx.begin();
+    }*//*
+
+    template <typename FormatContext>
+    auto format(const errors::Error &error, FormatContext &ctx) const
+    {
+        return format_to(ctx.out(), "[{}]: {}", error.getCode(), error.getMessage());
+    }
+};
+
+} // namespace fmt*/
+
+/*template <>
+struct fmt::formatter<errors::Error> :
+    fmt::formatter<std::string> {
+  auto format(const errors::Error& error, format_context& ctx) const {
+    //return formatter<std::string>::format(errors::codeToStr(code), ctx);
+    return format_to(ctx.out(), "[{}]: {}"_cf, error.getCode(), error.getMessage());
+  }
+};*/
+
+template <> struct fmt::formatter<errors::Error> {
+  constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+  template <typename FormatContext>
+  auto format(const errors::Error& error, FormatContext& ctx) const {
+    return format_to(ctx.out(), "({}, {})", error.getCode(), error.getMessage());
+  }
+};

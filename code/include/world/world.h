@@ -11,6 +11,7 @@
 
 #include "world/chunk.h"
 #include "world/block.h"
+#include <world/area.h>
 
 #include <renderer/renderer.h>
 
@@ -34,15 +35,17 @@ public:
 	World(std::shared_ptr<renderer::Renderer> _renderer);
 	~World();
 
-	Chunk* getChunkByCoords(int xPos, int zPos);
-	glm::vec2 getChunkCoords(int xPos, int zPos);
-	Block* getBlock(int xPos, int yPos, int zPos);
+	//Chunk* getChunkByCoords(int xPos, int zPos);
+	//glm::vec2 getChunkCoords(int xPos, int zPos);
+	//Block* getBlock(int xPos, int yPos, int zPos);
 
 	std::string getWorldFolder();
 
-	void shiftChunks(int xPos, int zPos);
-	void shiftChunksThread(int xPos, int zPos);
-	void updateChunkRenderDistance(int renderDistance, int bufferDistance, int xPos, int zPos);
+	errors::expected<> loadArea(int xPos, int zPos);
+
+	//void shiftChunks(int xPos, int zPos);
+	//void shiftChunksThread(int xPos, int zPos);
+	//void updateChunkRenderDistance(int renderDistance, int bufferDistance, int xPos, int zPos);
 
 private:
 	ChunkData** chunks;
@@ -52,18 +55,22 @@ private:
 	int renderDistance, bufferDistance, chunksLength;
 	const std::string worldName = "test";
 
+	std::shared_ptr<renderer::Wrapper<Chunk>> getChunk(int x, int y);
+
 	void generateChunk(Chunk* chunk);
 	void loadChunk(Chunk* chunk);
 	void saveChunk(Chunk* chunk);
-	void updateChunkNoOffset(int xPos, int zPos);
-	void updateChunkNoOffset(Chunk* chunk);
+	//void updateChunkNoOffset(int xPos, int zPos);
+	//void updateChunkNoOffset(Chunk* chunk);
 
-	Chunk* getChunk(int xPos, int zPos);
-	Chunk* getChunkNoOffset(int xPos, int zPos);
+	//Chunk* getChunk(int xPos, int zPos);
+	//Chunk* getChunkNoOffset(int xPos, int zPos);
 
 	inline bool fileExists(const std::string& name);
 
 	std::shared_ptr<renderer::Renderer> renderer;
+
+	std::shared_ptr<world::Area> area;
 };
 
 } // namespace world

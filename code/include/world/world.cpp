@@ -20,7 +20,7 @@ World::World(std::shared_ptr<renderer::Renderer> _renderer) {
 World::~World() {
 }
 
-Chunk* World::getChunk(int xPos, int zPos) {
+/*Chunk* World::getChunk(int xPos, int zPos) {
 	int x = xPos + chunkXOffset;
 	int z = zPos + chunkZOffset;
 
@@ -28,36 +28,36 @@ Chunk* World::getChunk(int xPos, int zPos) {
 		return nullptr;
 	}
 	return chunks[(x * chunksLength) + z]->chunk;
-}
+}*/
 
-Chunk* World::getChunkNoOffset(int xPos, int zPos) {
+/*Chunk* World::getChunkNoOffset(int xPos, int zPos) {
 	if (xPos < 0 || xPos >= chunksLength || zPos < 0 || zPos >= chunksLength) {
 		return nullptr;
 	}
 
 	return chunks[(xPos * chunksLength) + zPos]->chunk;
-}
+}*/
 
-Chunk* World::getChunkByCoords(int xPos, int zPos) {
+/*Chunk* World::getChunkByCoords(int xPos, int zPos) {
 	int x = (xPos >= 0) ? xPos / CHUNK_MAX_WIDTH : (xPos / CHUNK_MAX_WIDTH) - 1;
 	int z = (zPos >= 0) ? zPos / CHUNK_MAX_WIDTH : (zPos / CHUNK_MAX_WIDTH) - 1;
 	return getChunk(x, z);
-}
+}*/
 
-glm::vec2 World::getChunkCoords(int xPos, int zPos) {
+/*glm::vec2 World::getChunkCoords(int xPos, int zPos) {
 	int x = (xPos >= 0) ? xPos / CHUNK_MAX_WIDTH : (xPos / CHUNK_MAX_WIDTH) - 1;
 	int z = (zPos >= 0) ? zPos / CHUNK_MAX_WIDTH : (zPos / CHUNK_MAX_WIDTH) - 1;
 	return glm::vec2(x, z);
-}
+}*/
 
-Block* World::getBlock(int xPos, int yPos, int zPos) {
+/*Block* World::getBlock(int xPos, int yPos, int zPos) {
 	Chunk* chunk = getChunkByCoords(xPos, zPos);
 	if (chunk == nullptr || yPos < 0 || yPos > CHUNK_MAX_HEIGHT) {
 		return nullptr;
 	}
 	return chunk->getBlock((xPos >= 0 || xPos % CHUNK_MAX_WIDTH == 0) ? xPos % CHUNK_MAX_WIDTH : (xPos % CHUNK_MAX_WIDTH) + CHUNK_MAX_WIDTH,
 		yPos, (zPos >= 0 || zPos % CHUNK_MAX_WIDTH == 0) ? zPos % CHUNK_MAX_WIDTH : (zPos % CHUNK_MAX_WIDTH) + CHUNK_MAX_WIDTH);
-}
+}*/
 
 std::string World::getWorldFolder() {
 	return "saves/" + worldName + "/";
@@ -176,7 +176,7 @@ inline bool World::fileExists(const std::string& name) {
 	return (stat(name.c_str(), &buffer) == 0);
 }
 
-void World::updateChunkNoOffset(int xPos, int zPos) {
+/*void World::updateChunkNoOffset(int xPos, int zPos) {
 	Chunk* chunk = getChunkNoOffset(xPos, zPos);
 
 	if (chunk == nullptr) {
@@ -206,9 +206,9 @@ void World::updateChunkNoOffset(int xPos, int zPos) {
 			std::cout << "Shift chunks: " << ret.error() << std::endl;
 		}
 	}
-}
+}*/
 
-void World::updateChunkNoOffset(Chunk* chunk) {
+/*void World::updateChunkNoOffset(Chunk* chunk) {
 	int xPos = chunk->getChunkXPos();
 	int zPos = chunk->getChunkZPos();
 
@@ -239,9 +239,9 @@ void World::updateChunkNoOffset(Chunk* chunk) {
 			std::cout << "Shift chunks: " << ret.error() << std::endl;
 		}
 	}
-}
+}*/
 
-void World::shiftChunksThread(int xPos, int zPos) {
+/*void World::shiftChunksThread(int xPos, int zPos) {
 	shiftMutex.lock();
 	int prevXPos = (renderDistance + bufferDistance) - chunkXOffset;
 	int prevZPos = (renderDistance + bufferDistance) - chunkZOffset;
@@ -453,18 +453,18 @@ void World::shiftChunksThread(int xPos, int zPos) {
 
 	//LOG(DEBUG, "Chunk shifter thread done");
 	shiftMutex.unlock();
-}
+}*/
 
-void World::shiftChunks(int xPos, int zPos) {
+/*void World::shiftChunks(int xPos, int zPos) {
 	//LOG(DEBUG, "Shifting chunks");
 
 	//std::thread threadShiftChunks(&World::shiftChunksThread, this, xPos, zPos);
 	//threadShiftChunks.detach();
 
 	shiftChunksThread(xPos, zPos);
-}
+}*/
 
-void World::updateChunkRenderDistance(int renderDistance, int bufferDistance, int xPos, int zPos) {
+/*void World::updateChunkRenderDistance(int renderDistance, int bufferDistance, int xPos, int zPos) {
 	this->renderDistance = renderDistance;
 	this->bufferDistance = bufferDistance;
 
@@ -505,6 +505,30 @@ void World::updateChunkRenderDistance(int renderDistance, int bufferDistance, in
 			updateChunkNoOffset(i, j);
 		}
 	}
+}*/
+
+errors::expected<>
+World::loadArea(int xPos, int zPos)
+{
+	// Remove old area
+	area = nullptr;
+
+	// Create new world
+	//area = std::make_shared<world::Area>(std::bind(getChunk), xPos, zPos, 3);
+	area = std::make_shared<world::Area>(std::bind(&world::World::getChunk, this, std::placeholders::_1, std::placeholders::_2), xPos, zPos, 3);
+
+
+	return {};
+}
+
+std::shared_ptr<renderer::Wrapper<Chunk>>
+World::getChunk(int x, int y)
+{
+	std::shared_ptr<Chunk> chunk = std::make_shared<Chunk>(x, y);
+	loadChunk(chunk.get());
+
+	std::shared_ptr<renderer::Wrapper<Chunk>> wrapper = std::make_shared<renderer::Wrapper<Chunk>>(renderer, chunk);
+	return wrapper;
 }
 
 } // namespace world

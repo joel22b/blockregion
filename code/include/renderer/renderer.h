@@ -1,129 +1,96 @@
 #pragma once
 
-#include <variant>
 #include <memory>
+#include <string>
+#include <mutex>
+#include <vector>
 #include <map>
 
-#include <errors/br-expected.h>
+#include "glm/glm.hpp"
+#include "glm/gtc/noise.hpp"
 
-#include <textures/loader.h>
-
-// List all shaders
-#include <shaders/block.h>
-#include <shaders/text.h>
-
-// List all meshes
-#include <meshes/chunk-mesh.h>
-#include <meshes/text.h>
-
-#include <world/chunk.h>
-#include <text/text.h>
-
-#include <renderer/include.h>
+#include <renderer/types.h>
 
 namespace renderer
 {
 
-/********************************
- * Definitions
-********************************/
-
-inline
-Renderer::Renderer()
+class Renderer
 {
-    texLoader = std::make_shared<textures::Loader>();
+public:
+    Renderer();
+    Renderer(std::shared_ptr<textures::Loader> _texLoader, std::shared_ptr<shaders::Block> _blockShader);
+
+    void renderAll();
+
+    template<typename T>
+    errors::expected<RenderId> registerNew(T toRegister)
+    {
+        errors::expected<std::shared_ptr<MeshTypes>> newMesh = generateMesh(toRegister);
+        if (errors::has_error(newMesh))
+        {
+            return std::unexpected(newMesh.error().prefix("Renderer: registerNew: "));
+        }
+
+        RenderId id = getNewId();
+        meshes.emplace(id, newMesh.value());
+        //std::cout << "registerNew Id=" << id << std::endl;
+        return id;
+    }
+
+    template<typename T>
+    errors::expected<> registerExisting(RenderId id, T toRegister)
+    {
+        if (id == 0)
+        {
+            return errors::unexpected("Renderer: registerExisting: 0 is invalid Id", errors::Code::InvalidArgument);
+        }
+        if (!meshes.contains(id))
+        {
+            return errors::unexpected("Renderer: registerExisting: no mesh with Id="+std::to_string(id), errors::Code::NotFound);
+        }
+
+        errors::expected<std::shared_ptr<MeshTypes>> newMesh = generateMesh(toRegister);
+        if (errors::has_error(newMesh))
+        {
+            return std::unexpected(newMesh.error().prefix("Renderer: registerExisting: "));
+        }
+
+        meshes[id] = newMesh.value();
+        //std::cout << "registerExisting Id=" << id << std::endl;
+        return {};
+    }
+
+    errors::expected<> unregister(RenderId id);
+
+private:
+    template<typename T>
+    errors::expected<std::shared_ptr<MeshTypes>> generateMesh(T pre);
+
+    RenderId getNewId();
+
+    std::shared_ptr<textures::Loader> texLoader;
 
     // Shaders
-	blockShader = std::make_shared<shaders::Block>(texLoader);
-    textShader = std::make_shared<shaders::Text>(texLoader);
-}
+	std::shared_ptr<shaders::Block> blockShader;
+    std::shared_ptr<shaders::Text> textShader;
 
-inline
-Renderer::Renderer(std::shared_ptr<textures::Loader> _texLoader, std::shared_ptr<shaders::Block> _blockShader)
+    std::map<RenderId, std::shared_ptr<MeshTypes>> meshes;
+
+    RenderId nextId {1};
+};
+
+} // namespace renderer
+
+#include <world/chunk.h>
+#include <text/text.h>
+
+namespace renderer
 {
-    texLoader = _texLoader;
-    blockShader = _blockShader;
-    textShader = std::make_shared<shaders::Text>(texLoader);
-}
-
-inline
-void
-Renderer::renderAll()
-{
-    struct MeshRenderer
-    {
-        void operator()(Chunk_Mesh& cMesh) const { cMesh.doRender(); }
-        void operator()(meshes::Text& mesh) const { mesh.render(); }
-    };
-
-    // TODO: Add locking
-    for (auto meshIter = meshes.begin(); meshIter != meshes.end(); meshIter++)
-    {
-        //Chunk_Mesh cMesh = std::get<Chunk_Mesh>(*meshIter->second);
-        //cMesh.doRender();
-        std::visit(MeshRenderer{}, *meshIter->second);
-    }
-}
-
-template<typename T>
-inline
-errors::expected<RenderId>
-Renderer::registerNew(T toRegister)
-{
-    errors::expected<std::shared_ptr<MeshTypes>> newMesh = generateMesh(toRegister);
-    if (errors::has_error(newMesh))
-    {
-        return std::unexpected(newMesh.error().prefix("Renderer: registerNew: "));
-    }
-
-    RenderId id = getNewId();
-    meshes.emplace(id, newMesh.value());
-    //std::cout << "registerNew Id=" << id << std::endl;
-    return id;
-}
-
-template<typename T>
-inline
-errors::expected<>
-Renderer::registerExisting(RenderId id, T toRegister)
-{
-    if (id == 0)
-    {
-        return errors::unexpected("Renderer: registerExisting: 0 is invalid Id", errors::Code::InvalidArgument);
-    }
-    if (!meshes.contains(id))
-    {
-        return errors::unexpected("Renderer: registerExisting: no mesh with Id="+std::to_string(id), errors::Code::NotFound);
-    }
-
-    errors::expected<std::shared_ptr<MeshTypes>> newMesh = generateMesh(toRegister);
-    if (errors::has_error(newMesh))
-    {
-        return std::unexpected(newMesh.error().prefix("Renderer: registerExisting: "));
-    }
-
-    meshes[id] = newMesh.value();
-    //std::cout << "registerExisting Id=" << id << std::endl;
-    return {};
-}
-
-inline
-errors::expected<>
-Renderer::unregister(RenderId id)
-{
-    size_t numErased = meshes.erase(id);
-    if (numErased == 0)
-    {
-        return errors::unexpected("Renderer: unregister: no mesh with Id="+std::to_string(id), errors::Code::NotFound);
-    }
-
-    return {};
-}
 
 template<>
 inline
 errors::expected<std::shared_ptr<MeshTypes>>
-Renderer::generateMesh(world::Chunk* pre)
+Renderer::generateMesh(std::shared_ptr<world::Chunk> pre)
 {
     std::vector<Block_Face> blockFaces;
 	Block_Face blockFace;
@@ -261,15 +228,6 @@ Renderer::generateMesh(text::Text* text)
 {
     std::shared_ptr<MeshTypes> newMesh = std::make_shared<MeshTypes>(meshes::Text(textShader, text->text, text->x, text->y, text->scale, text->color));
     return newMesh;
-}
-
-inline
-RenderId
-Renderer::getNewId()
-{
-    // TODO: Add locking if needed
-    // TODO: Ensure no existing Ids can be generated
-    return nextId++;
 }
 
 } // namespace renderer

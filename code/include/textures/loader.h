@@ -2,6 +2,7 @@
 
 #include <string>
 #include <ostream>
+#include <fstream>
 #include <vector>
 #include <map>
 #include <optional>

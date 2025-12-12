@@ -43,7 +43,7 @@ void Entity::doUpdate(GLfloat deltaTime) {
 	}
 
 	// Collision Detection
-	glm::vec2 entityPos[] = { glm::vec2(potentialPos.x - (dimentions.x / 2), potentialPos.x + (dimentions.x / 2)),
+	/*glm::vec2 entityPos[] = { glm::vec2(potentialPos.x - (dimentions.x / 2), potentialPos.x + (dimentions.x / 2)),
 		glm::vec2(potentialPos.y, potentialPos.y + dimentions.y), glm::vec2(potentialPos.z - (dimentions.z / 2), potentialPos.z + (dimentions.z / 2)) };
 	bool collided = false;
 	glm::vec3 posInt = glm::vec3(glm::floor(position.x), glm::floor(position.y), glm::floor(position.z));
@@ -102,7 +102,7 @@ void Entity::doUpdate(GLfloat deltaTime) {
 				}
 			}
 		}
-	}
+	}*/
 
 	position = potentialPos;
 	updateVectors();

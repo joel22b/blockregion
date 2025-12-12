@@ -2,8 +2,7 @@
 
 #include <string>
 
-//#include <renderer/renderer.h>
-#include <renderer/include.h>
+#include <renderer/types.h>
 
 namespace text
 {

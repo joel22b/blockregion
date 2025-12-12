@@ -11,7 +11,7 @@ Player::Player(world::World* world, glm::vec3 position, glm::vec3 dimentions, GL
 	camera = new Camera(position);
 	camera->setCameraVectors(position + glm::vec3(0, 1, 0), front, right, up);
 
-	chunkCoords = world->getChunkCoords((int)position.x, (int)position.z);
+	//chunkCoords = world->getChunkCoords((int)position.x, (int)position.z);
 }
 
 void Player::processKeyboardInput(Player_Movement movement, GLfloat deltaTime) {
@@ -61,10 +61,10 @@ void Player::doUpdate(GLfloat deltaTime) {
 	Entity::doUpdate(deltaTime);
 
 	// Check if changed chunks
-	if (chunkCoords != world->getChunkCoords((int)position.x, (int)position.z)) {
+	/*if (chunkCoords != world->getChunkCoords((int)position.x, (int)position.z)) {
 		chunkCoords = world->getChunkCoords((int)position.x, (int)position.z);
 		world->shiftChunks((int)chunkCoords.x, (int)chunkCoords.y);
-	}
+	}*/
 }
 
 glm::mat4 Player::getViewMatrix() {

@@ -17,7 +17,8 @@ Game::Game(int screenWidth, int screenHeight) {
 
 	player = new Player(world, glm::vec3(8.0f, 20.0f, 8.0f), glm::vec3(1, 2, 1));
 
-	world->updateChunkRenderDistance(2, 1, player->getX(), player->getZ());
+	//world->updateChunkRenderDistance(2, 1, player->getX(), player->getZ());
+	world->loadArea(player->getX()/world::CHUNK_MAX_WIDTH, player->getZ()/world::CHUNK_MAX_WIDTH);
 
 	// Create all the text for the game
 	textChunkCoords.initialize(renderer, "Chunk coord:", 25.0f, 200.0f, 0.5f, glm::vec3(1, 1, 1));
@@ -73,14 +74,14 @@ void Game::doRender() {
 	//text->RenderText(playerInfo, 25.0f, 225.0f, 1.0f, glm::vec3(1, 1, 1));
 
 	std::ostringstream keyPressed, chunkCoord;
-	world::Chunk* chunk = world->getChunkByCoords(player->getPosition().x, player->getPosition().z);
+	/*world::Chunk* chunk = world->getChunkByCoords(player->getPosition().x, player->getPosition().z);
 	if (chunk == nullptr) {
 		chunkCoord << "Chunk coord: NULL";
 	}
 	else {
 		chunkCoord << "Chunk coord: x: " << chunk->getXPos() << " z: " << chunk->getZPos();
 	}
-	textChunkCoords.updateText(chunkCoord.str());
+	textChunkCoords.updateText(chunkCoord.str());*/
 	keyPressed << "Keys: W: " << keys[GLFW_KEY_W] << " S: " << keys[GLFW_KEY_S] << " A: " << keys[GLFW_KEY_A] << " D: " << keys[GLFW_KEY_D];
 	textKeysPressed.updateText(keyPressed.str());
 
