@@ -1,13 +1,20 @@
 #pragma once
 
 #include <string>
+#include <ostream>
+#include <sstream>
 #include <vector>
 #include <memory>
+#include <map>
 
 #include <GL/glew.h>
 
+#include "glm/glm.hpp"
+
 namespace textures
 {
+
+using TileID = std::string;
 
 enum TextureType
 {
@@ -22,13 +29,28 @@ struct Texture
 {
     GLuint id;
     TextureType type {TextureType::Unknown};
+    
+    // Text only
+    glm::ivec2 size;
+    glm::ivec2 bearing;
+    uint32_t advance;
 };
 
 struct TextureSet
 {
     std::shared_ptr<std::vector<Texture>> textures {};
-    int tileWidth {0};
-    int tileHeight {0};
+    int tileNumWidth {0};
+    int tileNumHeight {0};
+
+    std::map<TileID, glm::vec2> tileCoords;
+
+    template <typename A, typename B>
+    glm::vec2 getTileCoords(A a, B b)
+    {
+        std::ostringstream query;
+		query << a << "_" << b;
+		return tileCoords[query.str()];
+    }
 };
 
 /********************************

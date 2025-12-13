@@ -1,22 +1,16 @@
-#include "entity.h"
+#include "entity/entity.h"
 
-//#include "../utils/Logger.h"
-//#define LOG(severity, msg) Logger::log("Entity.cpp", severity, msg)
-
-Entity::Entity() {
-
-}
-
-Entity::Entity(World* world, glm::vec3 position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed) {
+Entity::Entity(world::World* world, world::Coord position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed):
+	position(position)
+{
 	this->world = world;
-	this->position = position;
 	this->dimentions = dimentions;
 	this->worldUp = glm::vec3(0, 1, 0);
 	this->yaw = yaw;
 	this->pitch = pitch;
 	this->speed = speed;
 	this->jumpSpeed = jumpSpeed;
-	this->potentialPos = position;
+	this->potentialPos = position.getVec();
 	this->flying = flying;
 
 	velocity = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -49,27 +43,27 @@ void Entity::doUpdate(GLfloat deltaTime) {
 	glm::vec3 posInt = glm::vec3(glm::floor(position.x), glm::floor(position.y), glm::floor(position.z));
 
 	glm::vec4 collisionPosFaces[] = {
-		glm::vec4(-1, 0, 0, XPOS), glm::vec4(-1, 1, 0, XPOS),
+		glm::vec4(-1, 0, 0, world::XPOS), glm::vec4(-1, 1, 0, world::XPOS),
 
-		glm::vec4(1, 0, 0, XNEG), glm::vec4(1, 1, 0, XNEG),
+		glm::vec4(1, 0, 0, world::XNEG), glm::vec4(1, 1, 0, world::XNEG),
 
-		glm::vec4(0, -1, 0, YPOS), glm::vec4(1, -1, 0, YPOS),
+		glm::vec4(0, -1, 0, world::YPOS), glm::vec4(1, -1, 0, world::YPOS),
 
-		glm::vec4(-1, -1, 0, YPOS), glm::vec4(0, -1, 1, YPOS),
+		glm::vec4(-1, -1, 0, world::YPOS), glm::vec4(0, -1, 1, world::YPOS),
 
-		glm::vec4(0, -1, -1, YPOS),
+		glm::vec4(0, -1, -1, world::YPOS),
 
-		glm::vec4(0, 2, 0, YNEG),
+		glm::vec4(0, 2, 0, world::YNEG),
 
-		glm::vec4(0, 0, -1, ZPOS), glm::vec4(0, 1, -1, ZPOS),
+		glm::vec4(0, 0, -1, world::ZPOS), glm::vec4(0, 1, -1, world::ZPOS),
 
-		glm::vec4(0, 0, 1, ZNEG), glm::vec4(0, 1, 1, ZNEG)
+		glm::vec4(0, 0, 1, world::ZNEG), glm::vec4(0, 1, 1, world::ZNEG)
 	};
 
 	for (int i = 0; i < 14; i++) {
-		Block* block = world->getBlock(posInt.x + collisionPosFaces[i].x, posInt.y + collisionPosFaces[i].y, posInt.z + collisionPosFaces[i].z);
+		world::Block* block = world->getBlock(world::Coord(posInt.x + collisionPosFaces[i].x, posInt.y + collisionPosFaces[i].y, posInt.z + collisionPosFaces[i].z));
 
-		if (block != nullptr && block->getType() != AIR) {
+		if (block != nullptr && block->getType() != world::AIR) {
 			glm::vec2 blockPos[] = {
 				glm::vec2(posInt.x + collisionPosFaces[i].x, posInt.x + collisionPosFaces[i].x + 1),
 				glm::vec2(posInt.y + collisionPosFaces[i].y, posInt.y + collisionPosFaces[i].y + 1),
@@ -108,7 +102,9 @@ void Entity::doUpdate(GLfloat deltaTime) {
 	updateVectors();
 }
 
-glm::vec3 Entity::getPosition() {
+world::Coord
+Entity::getPosition()
+{
 	return position;
 }
 

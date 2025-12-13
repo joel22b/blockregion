@@ -12,20 +12,26 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "camera.h"
-#include "shaders/block.h"
-#include "world.h"
-#include "textures/loader.h"
-#include "text.h"
+#include "renderer/renderer.h"
 
-#include "player.h"
+#include "text/text.h"
+
+#include "utils/camera.h"
+#include "shaders/block.h"
+#include "world/world.h"
+#include "textures/loader.h"
+
+#include "entity/player.h"
 
 class Game {
 private:
 	//Camera camera;
 	std::shared_ptr<textures::Loader> texLoader;
 	std::shared_ptr<shaders::Block> blockShader;
-	World* world;
+
+	std::shared_ptr<renderer::Renderer> renderer;
+
+	world::World* world;
 
 	Player* player;
 
@@ -37,13 +43,24 @@ private:
 	void loadShaders(int screenWidth, int screenHeight);
 	void loadTextures();
 
+	text::Text textChunkCoords;
+	text::Text textKeysPressed;
+	text::Text textCameraDirection;
+	text::Text textCameraPosition;
+	text::Text textPlayerDirection;
+	text::Text textPlayerPosition;
+	text::Text textMsPerFrame;
+	text::Text textFps;
+
 public:
 	Game(int screenWidth, int screenHeight);
 	~Game();
 
 	void doInput(GLfloat deltaTime);
 	void doUpdate(GLfloat deltaTime);
-	void doRender(Text* text);
+	void doRender();
+	
+	void updateFPS(std::string fpsStr, std::string msStr);
 
 	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 	void mouseCallback(GLFWwindow* window, double xPos, double yPos);

@@ -12,17 +12,15 @@
 
 #include "SOIL2/SOIL2.h"
 
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/basic_file_sink.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// Other includes
-#include "camera.h"
 #include "game.h"
-#include "text.h"
-
-//#include "src/utils/Logger.h"
-//#define LOG(severity, msg) Logger::log("main.cpp", severity, msg)
 
 // Window dimensions
 const GLint WIDTH = 1600, HEIGHT = 800;
@@ -30,8 +28,6 @@ int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
-
-//Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
@@ -43,12 +39,33 @@ std::string mspfText = "test", fpsText = "test";
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
-//Logger* logger;
-
 Game* game;
 
 int main() {
-    //logger = new Logger();
+    // Create logger first
+    std::shared_ptr<spdlog::logger> logger;
+    {
+        std::vector<spdlog::sink_ptr> sinks;
+        spdlog::sink_ptr sinkConsole = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        spdlog::sink_ptr sinkFile = std::make_shared<spdlog::sinks::basic_file_sink_mt>("blockregion.log", true);
+
+        sinkConsole->set_level(spdlog::level::debug);
+        sinkFile->set_level(spdlog::level::trace);
+
+        sinkConsole->set_pattern("[%T.%f] [%^%L%$] %n: %v");
+        sinkFile->set_pattern("[%T.%f] [%^%L%$] %n: %v");
+
+        sinks.push_back(sinkConsole);
+        sinks.push_back(sinkFile);
+
+        logger = std::make_shared<spdlog::logger>("blockregion", std::begin(sinks), std::end(sinks));
+        spdlog::register_logger(logger);
+        spdlog::set_level(spdlog::level::trace);
+        spdlog::flush_every(std::chrono::seconds(1));
+
+        logger->debug("Logger created successfully");
+    }
+    logger->info("Version: {}", VERSION_STRING);
 
     glfwInit();
 
@@ -62,28 +79,27 @@ int main() {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error main window: " << err << std::endl;
+        logger->critical("Failed to setup glfw window hints: {}", err);
     }
 
     // Creates the window (The two nullptrs are monitor and window respectively)
     //std::ostringstream msg;
 	//msg << "Creating GFLW window: width=" << WIDTH << " height=" << HEIGHT;
 	//LOG(INFO, msg.str());
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Blockzone", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "blockregion", nullptr, nullptr);
+    if (window == NULL)
+    {
+        logger->critical("Failed to create glfw window [{}] with width={} height={}", "blockregion", WIDTH, HEIGHT);
+        glfwTerminate();
+        return EXIT_FAILURE;
+    }
+    logger->info("Created window: width={} height={}", WIDTH, HEIGHT);
 
     // Adjusts for pixel density
     glfwGetFramebufferSize(window, &SCREEN_WIDTH, &SCREEN_HEIGHT);
 
-    if (window == nullptr) {
-        //LOG(ERROR, "Failed to create GLFW window");
-        glfwTerminate();
-
-        return EXIT_FAILURE;
-    }
-
     glfwMakeContextCurrent(window);
 
-    //LOG(INFO, "Setting callbacks for keyboard and mouse");
     glfwSetKeyCallback(window, KeyCallback);
     glfwSetCursorPosCallback(window, MouseCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -91,14 +107,14 @@ int main() {
     err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error main callback: " << err << std::endl;
+        logger->critical("Failed to setup glfw callbacks: {}", err);
+        return EXIT_FAILURE;
     }
 
     glewExperimental = GL_TRUE;
 
     if (glewInit() != GLEW_OK) {
-        //LOG(ERROR, "Failed to initialise GLEW");
-
+        logger->critical("Failed to initialize glew");
         return EXIT_FAILURE;
     }
 
@@ -107,7 +123,8 @@ int main() {
     err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error main viewport: " << err << std::endl;
+        logger->critical("Failed to setup viewport: {}", err);
+        return EXIT_FAILURE;
     }
 
     glEnable(GL_DEPTH_TEST);
@@ -119,17 +136,14 @@ int main() {
     err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error main blend: " << err << std::endl;
+        logger->critical("Failed to setup blend function: {}", err);
+        return EXIT_FAILURE;
     }
 
     game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    std::string textPath{TEXTURES_PATH};
-    textPath += "/arial.ttf";
-    Text arialText = Text(textPath.c_str(), 20);
-
     // Main program loop
-    //LOG(INFO, "Entering main loop");
+    logger->debug("Started main loop");
     while (!glfwWindowShouldClose(window)) {
         // Get time since last frame
         GLfloat currentFrame = glfwGetTime();
@@ -145,6 +159,8 @@ int main() {
             fpsText = "fps: " + to_string(1000.0 / mspf);
             nbFrames = 0;
             lastTime += 1.0;
+
+            game->updateFPS(fpsText, mspfText);
         }
 
         glfwPollEvents();
@@ -155,26 +171,18 @@ int main() {
 
         game->doUpdate(deltaTime);
 
-        game->doRender(&arialText);
-
-        arialText.RenderText(mspfText, 25.0f, 50.0f, 1.0f, glm::vec3(1, 1, 1));
-        arialText.RenderText(fpsText, 25.0f, 25.0f, 1.0f, glm::vec3(1, 1, 1));
-        // Drawing done above
+        game->doRender();
 
         glfwSwapBuffers(window);
     }
-    //LOG(INFO, "Exiting main loop");
+    logger->debug("Finished main loop");
 
     // If here, program is exiting
     delete game;
 
-    //LOG(INFO, "Terminating GLFW");
-
     glfwTerminate();
-    
-	//delete logger;
 
-    std::cout << "Done" << std::endl;
+    logger->info("Done");
 
     return EXIT_SUCCESS;
 }

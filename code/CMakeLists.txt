@@ -1,17 +1,15 @@
 #######################################################
+# Get all source files
+#######################################################
+file(GLOB_RECURSE BLOCKREGION_SOURCE_FILES "*.cpp")
+
+#######################################################
 # Blockregion
 #######################################################
 set(EXE blockregion)
 
 add_executable(${EXE}
-    src/main.cpp
-    src/game.cpp
-    src/world.cpp
-    src/entity.cpp
-    src/player.cpp
-    src/block.cpp
-    src/chunk.cpp
-    src/collision-detection.cpp
+    ${BLOCKREGION_SOURCE_FILES}
 )
 
 target_include_directories(${EXE} PUBLIC 
@@ -32,9 +30,11 @@ target_link_libraries(${EXE} PRIVATE
     soil2
     glm::glm
     nlohmann_json::nlohmann_json
+    spdlog::spdlog
 )
 
 target_compile_definitions(${EXE} PUBLIC
+    -DVERSION_STRING="${VERSION_STRING}"
     -DSHADERS_PATH="${GIT_REPO_BASE}/code/shaders/"
     -DTEXTURES_PATH="${GIT_REPO_BASE}/textures/"
 )

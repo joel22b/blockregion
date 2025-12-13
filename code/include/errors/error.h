@@ -1,48 +1,11 @@
 #pragma once
 
-#include <string>
-#include <ostream>
+#include <errors/codes.h>
+
+#include <spdlog/fmt/fmt.h>
 
 namespace errors
 {
-
-enum Code
-{
-    Unknown = 0,
-    InvalidArgument,
-    InvalidOperation,
-    InvalidState,
-    Timeout,
-    InitializationError,
-};
-
-inline
-std::ostream&
-operator<<(std::ostream& os, const Code& code)
-{
-    switch (code)
-    {
-        case Code::Unknown:
-            os << "Unknown";
-            break;
-        case Code::InvalidArgument:
-            os << "InvalidArgument";
-            break;
-        case Code::InvalidOperation:
-            os << "InvalidOperation";
-            break;
-        case Code::InvalidState:
-            os << "InvalidState";
-            break;
-        case Code::Timeout:
-            os << "Timeout";
-            break;
-        default:
-            os << "undefined";
-            break;
-    }
-    return os;
-}
 
 class Error
 {
@@ -77,3 +40,21 @@ private:
 };
 
 } // namespace errors
+
+namespace fmt
+{
+
+template <>
+struct formatter<errors::Error>
+{
+  constexpr auto parse(format_parse_context& ctx)
+  { return ctx.begin(); }
+
+  template <typename FormatContext>
+  auto format(const errors::Error& error, FormatContext& ctx) const
+  {
+    return format_to(ctx.out(), "[{}]: {}", error.getCode(), error.getMessage());
+  }
+};
+
+} // namespace fmt

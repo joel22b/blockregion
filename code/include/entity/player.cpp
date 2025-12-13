@@ -1,17 +1,10 @@
-#include "player.h"
+#include "entity/player.h"
 
-//#include "../../utils/Logger.h"
-//#define LOG(severity, msg) Logger::log("Player.cpp", severity, msg)
+Player::Player(world::World* world, world::Coord position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed) : Entity(world, position, dimentions, yaw, pitch, flying, speed, jumpSpeed) {
+	camera = new Camera(position.getVec());
+	camera->setCameraVectors(position.getVec() + glm::vec3(0, 1, 0), front, right, up);
 
-Player::Player() : Entity() {
-	camera = nullptr;
-}
-
-Player::Player(World* world, glm::vec3 position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed) : Entity(world, position, dimentions, yaw, pitch, flying, speed, jumpSpeed) {
-	camera = new Camera(position);
-	camera->setCameraVectors(position + glm::vec3(0, 1, 0), front, right, up);
-
-	chunkCoords = world->getChunkCoords((int)position.x, (int)position.z);
+	//chunkCoords = world->getChunkCoords((int)position.x, (int)position.z);
 }
 
 void Player::processKeyboardInput(Player_Movement movement, GLfloat deltaTime) {
@@ -60,11 +53,8 @@ void Player::doUpdate(GLfloat deltaTime) {
 	// Do regular entity update
 	Entity::doUpdate(deltaTime);
 
-	// Check if changed chunks
-	if (chunkCoords != world->getChunkCoords((int)position.x, (int)position.z)) {
-		chunkCoords = world->getChunkCoords((int)position.x, (int)position.z);
-		world->shiftChunks((int)chunkCoords.x, (int)chunkCoords.y);
-	}
+	// Update world with new location
+	world->loadArea(position);
 }
 
 glm::mat4 Player::getViewMatrix() {
@@ -89,5 +79,5 @@ void Player::updateVectors() {
 	this->right = glm::normalize(glm::cross(this->front, this->worldUp));
 	this->up = glm::normalize(glm::cross(this->right, this->front));
 
-	camera->setCameraVectors(position + glm::vec3(0, 1, 0), front, right, up);
+	camera->setCameraVectors(position.getVec() + glm::vec3(0, 1, 0), front, right, up);
 }
