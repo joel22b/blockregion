@@ -65,6 +65,7 @@ TODO: Add instructions for Windows build
 - Removed all rendering logic that was imbended within world, chunk, and block classes
 - Incorporated text rendering into common loading and rendering pipelines
 - Added spdlog to handling logging needs
+- Added coordinate system with type safety and automatic conversions
 
 ## v0.1.0 Shader and Texture Revamp
 

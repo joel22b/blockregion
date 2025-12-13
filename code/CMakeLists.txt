@@ -10,12 +10,6 @@ set(EXE blockregion)
 
 add_executable(${EXE}
     ${BLOCKREGION_SOURCE_FILES}
-    #src/main.cpp
-    #src/game.cpp
-    #include/world/world.cpp
-    #src/entity.cpp
-    #src/player.cpp
-    #src/collision-detection.cpp
 )
 
 target_include_directories(${EXE} PUBLIC 
