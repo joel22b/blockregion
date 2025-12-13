@@ -25,6 +25,8 @@ public:
 
 	errors::expected<> loadArea(ChunkCoord coord);
 
+	Block* getBlock(GridCoord blockCoord);
+
 private:
 	std::shared_ptr<renderer::Wrapper<Chunk>> getChunk(ChunkCoord coord);
 

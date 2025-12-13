@@ -10,15 +10,28 @@
 namespace world
 {
 
+/********************************
+ * Constants
+********************************/
+
 namespace consts
 {
 const int CHUNK_MAX_WIDTH = 16;
 const int CHUNK_MAX_HEIGHT = 64;
 } // namespace consts
 
+/********************************
+ * Forward Declarations
+********************************/
+
 struct Coord;
 struct GridCoord;
 struct ChunkCoord;
+struct ChunkInternalCoord;
+
+/********************************
+ * Type Definitions
+********************************/
 
 struct Coord
 {
@@ -53,6 +66,9 @@ struct GridCoord
 
     GridCoord(int32_t x, int32_t y, int32_t z):
         x(x), y(y), z(z) {}
+    GridCoord(Coord coord):
+        x(static_cast<int32_t>(coord.x)), y(static_cast<int32_t>(coord.y)),
+        z(static_cast<int32_t>(coord.z)) {}
     GridCoord(ChunkCoord coord);
 
     glm::vec3 getVec() const
@@ -107,6 +123,31 @@ struct ChunkCoord
         return (x == other.x) && (z == other.z);
     }
 };
+
+struct ChunkInternalCoord
+{
+    uint8_t x;
+    uint8_t y;
+    uint8_t z;
+
+    ChunkInternalCoord(uint8_t x, uint8_t y, uint8_t z):
+        x(x), y(y), z(z) {}
+    ChunkInternalCoord(GridCoord coord)
+    {
+        // Assertions for type safety
+        static_assert(consts::CHUNK_MAX_HEIGHT < 256, "Constant: CHUNK_MAX_HEIGHT does not fit within ChunkInternalCoord type!");
+        static_assert(consts::CHUNK_MAX_WIDTH < 256, "Constant: CHUNK_MAX_WIDTH does not fit within ChunkInternalCoord type!");
+
+        // Handle both positive and negative cases
+        x = static_cast<uint8_t>(((coord.x % consts::CHUNK_MAX_WIDTH) + consts::CHUNK_MAX_WIDTH) % consts::CHUNK_MAX_WIDTH);
+        y = static_cast<uint8_t>(((coord.y % consts::CHUNK_MAX_HEIGHT) + consts::CHUNK_MAX_HEIGHT) % consts::CHUNK_MAX_HEIGHT);
+        z = static_cast<uint8_t>(((coord.z % consts::CHUNK_MAX_WIDTH) + consts::CHUNK_MAX_WIDTH) % consts::CHUNK_MAX_WIDTH);
+    }
+};
+
+/********************************
+ * Function Definitions
+********************************/
 
 inline
 GridCoord::GridCoord(ChunkCoord coord):

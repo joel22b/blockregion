@@ -34,6 +34,17 @@ World::loadArea(ChunkCoord coord)
 	return {};
 }
 
+Block*
+World::getBlock(GridCoord blockCoord)
+{
+	std::shared_ptr<renderer::Wrapper<Chunk>> chunkWrapper = (*area)[blockCoord];
+	if (chunkWrapper == nullptr)
+	{
+		return nullptr;
+	}
+	return (*chunkWrapper)->getBlock(blockCoord);
+}
+
 std::shared_ptr<renderer::Wrapper<Chunk>>
 World::getChunk(ChunkCoord coord)
 {

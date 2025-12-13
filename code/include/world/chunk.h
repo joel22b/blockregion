@@ -33,9 +33,8 @@ public:
 
 	ChunkCoord getCoord() const;
 
-	void addBlock(glm::vec3 relPos, Block_Type type);
-	void addBlock(int x, int y, int z, Block_Type type);
-	Block* getBlock(int x, int y, int z);
+	void addBlock(ChunkInternalCoord blockCoord, Block_Type type);
+	Block* getBlock(ChunkInternalCoord blockCoord);
 
 	bool shouldDelete();
 	void setDelete();
@@ -67,31 +66,16 @@ Chunk::getCoord() const
 
 inline
 void
-Chunk::addBlock(glm::vec3 relPos, Block_Type type)
+Chunk::addBlock(ChunkInternalCoord blockCoord, Block_Type type)
 {
-	blocks[(int)relPos.x][(int)relPos.y][(int)relPos.z].setType(type);
-}
-
-inline
-void
-Chunk::addBlock(int x, int y, int z, Block_Type type)
-{
-	blocks[x][y][z].setType(type);
+	blocks[blockCoord.x][blockCoord.y][blockCoord.z].setType(type);
 }
 
 inline
 Block*
-Chunk::getBlock(int x, int y, int z)
+Chunk::getBlock(ChunkInternalCoord blockCoord)
 {
-	if (x < 0 || x >= consts::CHUNK_MAX_WIDTH || y < 0 || y >= consts::CHUNK_MAX_HEIGHT || z < 0 || z >= consts::CHUNK_MAX_WIDTH)
-	{
-		//std::ostringstream msg;
-		//msg << "getBlock error x=" << x << " y=" << y << " z=" << z;
-		//LOG(WARN, msg.str());
-		return nullptr;
-	}
-
-	return &blocks[x][y][z];
+	return &blocks[blockCoord.x][blockCoord.y][blockCoord.z];
 }
 
 inline

@@ -25,6 +25,8 @@ public:
 
     bool operator==(const ChunkCoord& otherCoord);
     bool operator!=(const ChunkCoord& otherCoord);
+    std::shared_ptr<renderer::Wrapper<Chunk>> operator[](ChunkCoord chunkCoord);
+    //std::shared_ptr<renderer::Wrapper<Chunk>> operator[](GridCoord gridCoord);
 
 private:
     uint16_t getAreaSize();
@@ -87,6 +89,28 @@ Area::operator!=(const ChunkCoord& otherCoord)
 {
     return !(coord == otherCoord);
 }
+
+inline
+std::shared_ptr<renderer::Wrapper<Chunk>>
+Area::operator[](ChunkCoord chunkCoord)
+{
+    // Check that chunk is within Area
+    if (chunkCoord.x >= coord.x - radius && chunkCoord.x <= coord.x + radius &&
+        chunkCoord.z >= coord.z - radius && chunkCoord.z <= coord.z + radius)
+    {
+        return chunkMatrix[(coord.x + radius) - chunkCoord.x][(coord.z + radius) - chunkCoord.z];
+    }
+    spdlog::get("blockregion")->warn("Tried to access chunk not in [Area {} radius {}]: {}", coord, radius, chunkCoord);
+    return nullptr;
+}
+
+/*inline
+std::shared_ptr<renderer::Wrapper<Chunk>>
+Area::operator[](GridCoord gridCoord)
+{
+    ChunkCoord chunkCoord(gridCoord);
+    return (*this)[chunkCoord];
+}*/
 
 inline
 uint16_t
