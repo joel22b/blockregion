@@ -1,22 +1,16 @@
-#include "entity.h"
+#include "entity/entity.h"
 
-//#include "../utils/Logger.h"
-//#define LOG(severity, msg) Logger::log("Entity.cpp", severity, msg)
-
-Entity::Entity() {
-
-}
-
-Entity::Entity(world::World* world, glm::vec3 position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed) {
+Entity::Entity(world::World* world, world::Coord position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed):
+	position(position)
+{
 	this->world = world;
-	this->position = position;
 	this->dimentions = dimentions;
 	this->worldUp = glm::vec3(0, 1, 0);
 	this->yaw = yaw;
 	this->pitch = pitch;
 	this->speed = speed;
 	this->jumpSpeed = jumpSpeed;
-	this->potentialPos = position;
+	this->potentialPos = position.getVec();
 	this->flying = flying;
 
 	velocity = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -108,7 +102,9 @@ void Entity::doUpdate(GLfloat deltaTime) {
 	updateVectors();
 }
 
-glm::vec3 Entity::getPosition() {
+world::Coord
+Entity::getPosition()
+{
 	return position;
 }
 

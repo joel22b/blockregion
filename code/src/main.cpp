@@ -20,12 +20,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// Other includes
-#include "camera.h"
 #include "game.h"
-
-//#include "src/utils/Logger.h"
-//#define LOG(severity, msg) Logger::log("main.cpp", severity, msg)
 
 // Window dimensions
 const GLint WIDTH = 1600, HEIGHT = 800;
@@ -33,8 +28,6 @@ int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
-
-//Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
@@ -56,7 +49,7 @@ int main() {
         spdlog::sink_ptr sinkConsole = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         spdlog::sink_ptr sinkFile = std::make_shared<spdlog::sinks::basic_file_sink_mt>("blockregion.log", true);
 
-        sinkConsole->set_level(spdlog::level::info);
+        sinkConsole->set_level(spdlog::level::debug);
         sinkFile->set_level(spdlog::level::trace);
 
         sinkConsole->set_pattern("[%T.%f] [%^%L%$] %n: %v");

@@ -97,9 +97,9 @@ Renderer::generateMesh(std::shared_ptr<world::Chunk> pre)
 
     textures::TextureSet texSet = texLoader->getTextureSet("blocks");
 
-	for (int x = 0; x < world::CHUNK_MAX_WIDTH; x++) {
-		for (int y = 0; y < world::CHUNK_MAX_HEIGHT; y++) {
-			for (int z = 0; z < world::CHUNK_MAX_WIDTH; z++) {
+	for (int x = 0; x < world::consts::CHUNK_MAX_WIDTH; x++) {
+		for (int y = 0; y < world::consts::CHUNK_MAX_HEIGHT; y++) {
+			for (int z = 0; z < world::consts::CHUNK_MAX_WIDTH; z++) {
 				if (pre->getBlock(x, y, z)->getType() == world::AIR) {
 					// Add surrounding faces
 
@@ -113,7 +113,7 @@ Renderer::generateMesh(std::shared_ptr<world::Chunk> pre)
 						}
 					}
 					// XNEG
-					if (x != world::CHUNK_MAX_WIDTH - 1) {
+					if (x != world::consts::CHUNK_MAX_WIDTH - 1) {
 						if (pre->getBlock(x + 1, y, z)->getType() != world::AIR) {
 							blockFace.Position = glm::vec3(x + 1, y + 0.5f, z + 0.5f);
 							blockFace.Normal = glm::vec3(-1, 0, 0);
@@ -131,7 +131,7 @@ Renderer::generateMesh(std::shared_ptr<world::Chunk> pre)
 						}
 					}
 					// YNEG
-					if (y != world::CHUNK_MAX_HEIGHT - 1) {
+					if (y != world::consts::CHUNK_MAX_HEIGHT - 1) {
 						if (pre->getBlock(x, y + 1, z)->getType() != world::AIR) {
 							blockFace.Position = glm::vec3(x + 0.5f, y + 1, z + 0.5f);
 							blockFace.Normal = glm::vec3(0, -1, 0);
@@ -149,7 +149,7 @@ Renderer::generateMesh(std::shared_ptr<world::Chunk> pre)
 						}
 					}
 					// ZNEG
-					if (z != world::CHUNK_MAX_WIDTH - 1) {
+					if (z != world::consts::CHUNK_MAX_WIDTH - 1) {
 						if (pre->getBlock(x, y, z + 1)->getType() != world::AIR) {
 							blockFace.Position = glm::vec3(x + 0.5f, y + 0.5f, z + 1);
 							blockFace.Normal = glm::vec3(0, 0, -1);
@@ -164,16 +164,16 @@ Renderer::generateMesh(std::shared_ptr<world::Chunk> pre)
 
     // TODO: Do properly
     // Temp fix for chunk borders: Assume AIR if outside curr chunk
-    for (int w = 0; w < world::CHUNK_MAX_WIDTH; w++)
+    for (int w = 0; w < world::consts::CHUNK_MAX_WIDTH; w++)
     {
-        for (int y = 0; y < world::CHUNK_MAX_HEIGHT; y++)
+        for (int y = 0; y < world::consts::CHUNK_MAX_HEIGHT; y++)
         {
             // XPOS
-            if (pre->getBlock(world::CHUNK_MAX_WIDTH-1, y, w)->getType() != world::AIR)
+            if (pre->getBlock(world::consts::CHUNK_MAX_WIDTH-1, y, w)->getType() != world::AIR)
             {
-                blockFace.Position = glm::vec3(world::CHUNK_MAX_WIDTH, y + 0.5f, w + 0.5f);
+                blockFace.Position = glm::vec3(world::consts::CHUNK_MAX_WIDTH, y + 0.5f, w + 0.5f);
                 blockFace.Normal = glm::vec3(1, 0, 0);
-                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(world::CHUNK_MAX_WIDTH-1, y, w)->getType(), world::XPOS);
+                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(world::consts::CHUNK_MAX_WIDTH-1, y, w)->getType(), world::XPOS);
                 blockFaces.push_back(blockFace);
             }
             // XNEG
@@ -185,11 +185,11 @@ Renderer::generateMesh(std::shared_ptr<world::Chunk> pre)
                 blockFaces.push_back(blockFace);
             }
             // ZPOS
-            if (pre->getBlock(w, y, world::CHUNK_MAX_WIDTH-1)->getType() != world::AIR)
+            if (pre->getBlock(w, y, world::consts::CHUNK_MAX_WIDTH-1)->getType() != world::AIR)
             {
-                blockFace.Position = glm::vec3(w + 0.5f, y + 0.5f, world::CHUNK_MAX_WIDTH);
+                blockFace.Position = glm::vec3(w + 0.5f, y + 0.5f, world::consts::CHUNK_MAX_WIDTH);
                 blockFace.Normal = glm::vec3(0, 0, 1);
-                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(w, y, world::CHUNK_MAX_WIDTH-1)->getType(), world::ZPOS);
+                blockFace.TexCoords = texSet.getTileCoords(pre->getBlock(w, y, world::consts::CHUNK_MAX_WIDTH-1)->getType(), world::ZPOS);
                 blockFaces.push_back(blockFace);
             }
             // ZNEG
@@ -203,8 +203,10 @@ Renderer::generateMesh(std::shared_ptr<world::Chunk> pre)
         }
     }
 
+    world::GridCoord chunkOffset(pre->getCoord());
+
     std::shared_ptr<MeshTypes> newMesh = std::make_shared<MeshTypes>(Chunk_Mesh(blockFaces, glGetUniformLocation(blockShader->getProgram(), "model"),
-        glm::translate(glm::mat4(1), glm::vec3(pre->getXPos(), 0, pre->getZPos())), false));
+        glm::translate(glm::mat4(1), chunkOffset.getVec()), false));
 
     struct MeshVisitor
     {

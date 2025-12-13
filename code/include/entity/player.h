@@ -8,8 +8,8 @@
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "entity.h"
-#include "camera.h"
+#include "entity/entity.h"
+#include "utils/camera.h"
 
 enum Player_Movement {
 	FORWARD,
@@ -22,8 +22,7 @@ enum Player_Movement {
 
 class Player: public Entity {
 public:
-	Player();
-	Player(world::World* world, glm::vec3 position, glm::vec3 dimentions, GLfloat yaw = 0.0f, GLfloat pitch = 0.0f, bool flying = true, float speed = 6.0f, float jumpSpeed = 6.0f);
+	Player(world::World* world, world::Coord position, glm::vec3 dimentions, GLfloat yaw = 0.0f, GLfloat pitch = 0.0f, bool flying = true, float speed = 6.0f, float jumpSpeed = 6.0f);
 
 	void processKeyboardInput(Player_Movement movement, GLfloat deltaTime);
 	void processMouseInput(GLfloat xOffset, GLfloat yOffset, GLboolean constrainPitch = true);

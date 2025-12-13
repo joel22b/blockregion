@@ -15,10 +15,9 @@ Game::Game(int screenWidth, int screenHeight) {
 
 	world = new world::World(renderer);
 
-	player = new Player(world, glm::vec3(8.0f, 20.0f, 8.0f), glm::vec3(1, 2, 1));
+	player = new Player(world, world::Coord(8, 20, 8), glm::vec3(1, 2, 1));
 
-	//world->updateChunkRenderDistance(2, 1, player->getX(), player->getZ());
-	world->loadArea(player->getX()/world::CHUNK_MAX_WIDTH, player->getZ()/world::CHUNK_MAX_WIDTH);
+	world->loadArea(player->getPosition());
 
 	// Create all the text for the game
 	textChunkCoords.initialize(renderer, "Chunk coord:", 25.0f, 200.0f, 0.5f, glm::vec3(1, 1, 1));

@@ -13,21 +13,23 @@ namespace world
 constexpr uint16_t AREA_DEFAULT_RADIUS {3};
 
 //typedef renderer::Wrapper<Chunk> (*GetChunkCallback)(int x, int y);
-using GetChunkCallback = std::function<std::shared_ptr<renderer::Wrapper<world::Chunk>>(int, int)>;
+using GetChunkCallback = std::function<std::shared_ptr<renderer::Wrapper<world::Chunk>>(ChunkCoord)>;
 
 class Area
 {
 public:
-    Area(GetChunkCallback getChunk, int offsetX = 0, int offsetZ = 0, uint16_t radius = AREA_DEFAULT_RADIUS);
+    Area(GetChunkCallback getChunk, ChunkCoord coord, uint16_t radius = AREA_DEFAULT_RADIUS);
     ~Area();
 
     errors::expected<> changeRadius(uint16_t newRadius);
 
+    bool operator==(const ChunkCoord& otherCoord);
+    bool operator!=(const ChunkCoord& otherCoord);
+
 private:
     uint16_t getAreaSize();
 
-    int offsetX {0};
-    int offsetZ {0};
+    ChunkCoord coord;
 
     uint16_t radius {AREA_DEFAULT_RADIUS};
 
@@ -41,8 +43,8 @@ private:
 ********************************/
 
 inline
-Area::Area(GetChunkCallback getChunk, int offsetX, int offsetZ, uint16_t radius) :
-    getChunk(getChunk), offsetX(offsetX), offsetZ(offsetZ), radius(radius)
+Area::Area(GetChunkCallback getChunk, ChunkCoord coord, uint16_t radius) :
+    getChunk(getChunk), coord(coord), radius(radius)
 {
     // Reserve the space needed
     uint16_t areaSize = getAreaSize();
@@ -54,7 +56,8 @@ Area::Area(GetChunkCallback getChunk, int offsetX, int offsetZ, uint16_t radius)
         
         for (uint16_t j = 0; j < areaSize; j++)
         {
-            std::shared_ptr<renderer::Wrapper<world::Chunk>> newChunk = getChunk(offsetX + (i - radius), offsetZ + (j - radius));
+            ChunkCoord newCoord(coord.x + (i - radius), coord.z + (j - radius));
+            std::shared_ptr<renderer::Wrapper<world::Chunk>> newChunk = getChunk(newCoord);
             chunkMatrix[i].emplace_back(newChunk);
         }
     }
@@ -69,6 +72,20 @@ errors::expected<>
 Area::changeRadius(uint16_t newRadius)
 {
     return {};
+}
+
+inline
+bool
+Area::operator==(const ChunkCoord& otherCoord)
+{
+    return coord == otherCoord;
+}
+
+inline
+bool
+Area::operator!=(const ChunkCoord& otherCoord)
+{
+    return !(coord == otherCoord);
 }
 
 inline

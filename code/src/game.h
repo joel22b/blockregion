@@ -16,12 +16,12 @@
 
 #include "text/text.h"
 
-#include "camera.h"
+#include "utils/camera.h"
 #include "shaders/block.h"
 #include "world/world.h"
 #include "textures/loader.h"
 
-#include "player.h"
+#include "entity/player.h"
 
 class Game {
 private:

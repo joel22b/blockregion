@@ -12,36 +12,30 @@
 #include "glm/gtc/noise.hpp"
 
 #include "world/block.h"
+#include "world/types.h"
 
 #include <renderer/types.h>
 
 namespace world
 {
 
-const int CHUNK_MAX_WIDTH = 16;
-const int CHUNK_MAX_HEIGHT = 64;
-
 class Chunk {
 private:
 	std::vector<std::vector<std::vector<Block>>> blocks;
-	int xPos, zPos;
+	ChunkCoord coord;
 	bool toDelete {false};
 
 	renderer::RenderId renderId;
 
 public:
-	Chunk(int xPos, int zPos);
+	Chunk(ChunkCoord coord);
 	~Chunk();
+
+	ChunkCoord getCoord() const;
 
 	void addBlock(glm::vec3 relPos, Block_Type type);
 	void addBlock(int x, int y, int z, Block_Type type);
 	Block* getBlock(int x, int y, int z);
-
-	int getXPos();
-	int getZPos();
-
-	int getChunkXPos();
-	int getChunkZPos();
 
 	bool shouldDelete();
 	void setDelete();
@@ -52,17 +46,24 @@ public:
 ********************************/
 
 inline
-Chunk::Chunk(int xPos, int zPos) :
-	xPos(xPos), zPos(zPos)
+Chunk::Chunk(ChunkCoord coord) :
+	coord(coord)
 {
 	blocks = std::vector<std::vector<std::vector<Block>>>
-		(CHUNK_MAX_WIDTH, std::vector<std::vector<Block>>(CHUNK_MAX_HEIGHT,
-			std::vector<Block>(CHUNK_MAX_WIDTH, Block())));
+		(consts::CHUNK_MAX_WIDTH, std::vector<std::vector<Block>>(consts::CHUNK_MAX_HEIGHT,
+			std::vector<Block>(consts::CHUNK_MAX_WIDTH, Block())));
 }
 
 inline
 Chunk::~Chunk()
 {}
+
+inline
+ChunkCoord
+Chunk::getCoord() const
+{
+	return coord;
+}
 
 inline
 void
@@ -82,7 +83,7 @@ inline
 Block*
 Chunk::getBlock(int x, int y, int z)
 {
-	if (x < 0 || x >= CHUNK_MAX_WIDTH || y < 0 || y >= CHUNK_MAX_HEIGHT || z < 0 || z >= CHUNK_MAX_WIDTH)
+	if (x < 0 || x >= consts::CHUNK_MAX_WIDTH || y < 0 || y >= consts::CHUNK_MAX_HEIGHT || z < 0 || z >= consts::CHUNK_MAX_WIDTH)
 	{
 		//std::ostringstream msg;
 		//msg << "getBlock error x=" << x << " y=" << y << " z=" << z;
@@ -91,34 +92,6 @@ Chunk::getBlock(int x, int y, int z)
 	}
 
 	return &blocks[x][y][z];
-}
-
-inline
-int
-Chunk::getXPos()
-{
-	return xPos * CHUNK_MAX_WIDTH;
-}
-
-inline
-int
-Chunk::getZPos()
-{
-	return zPos * CHUNK_MAX_WIDTH;
-}
-
-inline
-int
-Chunk::getChunkXPos()
-{
-	return xPos;
-}
-
-inline
-int
-Chunk::getChunkZPos()
-{
-	return zPos;
 }
 
 inline
