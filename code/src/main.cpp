@@ -26,8 +26,8 @@
 const GLint WIDTH = 1600, HEIGHT = 800;
 int SCREEN_WIDTH, SCREEN_HEIGHT;
 
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void MouseCallback(GLFWwindow* window, double xPos, double yPos);
+void KeyCallback(int key, int scancode, int action, int mods);
+void MouseCallback(double xPos, double yPos);
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
@@ -67,84 +67,30 @@ int main() {
     }
     logger->info("Version: {}", VERSION_STRING);
 
-    glfwInit();
-
-    // Set OpenGL version to 3.3
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR)
+    // Setup OpenGL
     {
-        logger->critical("Failed to setup glfw window hints: {}", err);
+        glfwInit();
+
+        // Set OpenGL version to 3.3
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     }
 
-    // Creates the window (The two nullptrs are monitor and window respectively)
-    //std::ostringstream msg;
-	//msg << "Creating GFLW window: width=" << WIDTH << " height=" << HEIGHT;
-	//LOG(INFO, msg.str());
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "blockregion", nullptr, nullptr);
-    if (window == NULL)
-    {
-        logger->critical("Failed to create glfw window [{}] with width={} height={}", "blockregion", WIDTH, HEIGHT);
-        glfwTerminate();
-        return EXIT_FAILURE;
-    }
-    logger->info("Created window: width={} height={}", WIDTH, HEIGHT);
+    std::shared_ptr<renderer::Renderer> renderer = std::make_shared<renderer::Renderer>();
 
-    // Adjusts for pixel density
-    glfwGetFramebufferSize(window, &SCREEN_WIDTH, &SCREEN_HEIGHT);
+    game = new Game(renderer);
 
-    glfwMakeContextCurrent(window);
-
-    glfwSetKeyCallback(window, KeyCallback);
-    glfwSetCursorPosCallback(window, MouseCallback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
-        logger->critical("Failed to setup glfw callbacks: {}", err);
-        return EXIT_FAILURE;
-    }
-
-    glewExperimental = GL_TRUE;
-
-    if (glewInit() != GLEW_OK) {
-        logger->critical("Failed to initialize glew");
-        return EXIT_FAILURE;
-    }
-
-    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-    err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
-        logger->critical("Failed to setup viewport: {}", err);
-        return EXIT_FAILURE;
-    }
-
-    glEnable(GL_DEPTH_TEST);
-
-    //glEnable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
-        logger->critical("Failed to setup blend function: {}", err);
-        return EXIT_FAILURE;
-    }
-
-    game = new Game(SCREEN_WIDTH, SCREEN_HEIGHT);
+    renderer->getWindow()->registerKeyboardCallback(KeyCallback);
+    renderer->getWindow()->registerMouseCallback(MouseCallback);
+    //renderer->getWindow()->registerKeyboardCallback(game->keyCallback);
+    //renderer->getWindow()->registerMouseCallback(game->mouseCallback);
 
     // Main program loop
     logger->debug("Started main loop");
-    while (!glfwWindowShouldClose(window)) {
+    while (!renderer->getWindow()->hasWindow()) {
         // Get time since last frame
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -173,24 +119,27 @@ int main() {
 
         game->doRender();
 
-        glfwSwapBuffers(window);
+        //glfwSwapBuffers(window);
     }
     logger->debug("Finished main loop");
 
     // If here, program is exiting
     delete game;
 
-    glfwTerminate();
+    // Cleanup OpenGL
+    {
+        glfwTerminate();
+    }
 
     logger->info("Done");
 
     return EXIT_SUCCESS;
 }
 
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    game->keyCallback(window, key, scancode, action, mode);
+void KeyCallback(int key, int scancode, int action, int mods) {
+    game->keyCallback(key, scancode, action, mods);
 }
 
-void MouseCallback(GLFWwindow* window, double xPos, double yPos) {
-    game->mouseCallback(window, xPos, yPos);
+void MouseCallback(double xPos, double yPos) {
+    game->mouseCallback(xPos, yPos);
 }

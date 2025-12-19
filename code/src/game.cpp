@@ -3,15 +3,10 @@
 //#include "utils/Logger.h"
 //#define LOG(severity, msg) Logger::log("Game.cpp", severity, msg)
 
-Game::Game(int screenWidth, int screenHeight) {
-	//LOG(INFO, "Creating Game instance");
-
-	texLoader = std::make_shared<textures::Loader>();
-	blockShader = std::make_shared<shaders::Block>(texLoader);
-
-	renderer = std::make_shared<renderer::Renderer>(texLoader, blockShader);
-
-	loadShaders(screenWidth, screenHeight);
+Game::Game(std::shared_ptr<renderer::Renderer> renderer):
+	renderer(renderer)
+{
+	renderer->updateFOV(45.0f);
 
 	world = new world::World(renderer);
 
@@ -60,9 +55,7 @@ void Game::doInput(GLfloat deltaTime) {
 void Game::doUpdate(GLfloat deltaTime) {
 	player->doUpdate(deltaTime);
 
-	blockShader->Use();
-	glUniformMatrix4fv(glGetUniformLocation(blockShader->getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(player->getViewMatrix()));
-	glUniform3f(glGetUniformLocation(blockShader->getProgram(), "viewPos"), player->getPosition().x, player->getPosition().y, player->getPosition().z);
+	renderer->updateCamera(player->getViewMatrix(), player->getPosition());
 }
 
 void Game::doRender() {
@@ -101,9 +94,10 @@ void Game::updateFPS(std::string fpsStr, std::string msStr)
 	textFps.updateText(fpsStr);
 }
 
-void Game::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
+void Game::keyCallback(int key, int scancode, int action, int mode) {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-		glfwSetWindowShouldClose(window, GL_TRUE);
+		//glfwSetWindowShouldClose(window, GL_TRUE);
+		renderer->getWindow()->requestClose();
 	}
 	if (key >= 0 && key < 1024) {
 		if (action == GLFW_PRESS) {
@@ -115,7 +109,7 @@ void Game::keyCallback(GLFWwindow* window, int key, int scancode, int action, in
 	}
 }
 
-void Game::mouseCallback(GLFWwindow* window, double xPos, double yPos) {
+void Game::mouseCallback(double xPos, double yPos) {
 	if (firstMouse) {
 		lastX = xPos;
 		lastY = yPos;
@@ -129,20 +123,4 @@ void Game::mouseCallback(GLFWwindow* window, double xPos, double yPos) {
 	lastY = yPos;
 
 	player->processMouseInput(xOffset, yOffset);
-}
-
-void Game::loadShaders(int screenWidth, int screenHeight) {
-	// TODO: make this modular so multiple shaders can be used
-	// Load block shader
-
-	blockShader->Use();
-
-	updateProjection(45.0f, screenWidth, screenHeight);
-}
-
-void Game::updateProjection(GLfloat fov, int screenWidth, int screenHeight) {
-	blockShader->Use();
-	glm::mat4 projection(1);
-	projection = glm::perspective(45.0f, (GLfloat)screenWidth / (GLfloat)screenHeight, 0.1f, 1000.0f);
-	glUniformMatrix4fv(glGetUniformLocation(blockShader->getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 }

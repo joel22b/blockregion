@@ -31,6 +31,7 @@ target_link_libraries(${EXE} PRIVATE
     glm::glm
     nlohmann_json::nlohmann_json
     spdlog::spdlog
+    asio
 )
 
 target_compile_definitions(${EXE} PUBLIC
@@ -38,3 +39,5 @@ target_compile_definitions(${EXE} PUBLIC
     -DSHADERS_PATH="${GIT_REPO_BASE}/code/shaders/"
     -DTEXTURES_PATH="${GIT_REPO_BASE}/textures/"
 )
+
+

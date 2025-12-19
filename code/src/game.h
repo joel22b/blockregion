@@ -26,8 +26,6 @@
 class Game {
 private:
 	//Camera camera;
-	std::shared_ptr<textures::Loader> texLoader;
-	std::shared_ptr<shaders::Block> blockShader;
 
 	std::shared_ptr<renderer::Renderer> renderer;
 
@@ -40,9 +38,6 @@ private:
 	GLfloat lastY;
 	bool firstMouse = true;
 
-	void loadShaders(int screenWidth, int screenHeight);
-	void loadTextures();
-
 	text::Text textChunkCoords;
 	text::Text textKeysPressed;
 	text::Text textCameraDirection;
@@ -53,7 +48,7 @@ private:
 	text::Text textFps;
 
 public:
-	Game(int screenWidth, int screenHeight);
+	Game(std::shared_ptr<renderer::Renderer> renderer);
 	~Game();
 
 	void doInput(GLfloat deltaTime);
@@ -62,8 +57,6 @@ public:
 	
 	void updateFPS(std::string fpsStr, std::string msStr);
 
-	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
-	void mouseCallback(GLFWwindow* window, double xPos, double yPos);
-
-	void updateProjection(GLfloat fov, int screenWidth, int screenHeight);
+	void keyCallback(int key, int scancode, int action, int mode);
+	void mouseCallback(double xPos, double yPos);
 };
