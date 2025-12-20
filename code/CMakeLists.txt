@@ -34,10 +34,10 @@ target_link_libraries(${EXE} PRIVATE
     asio
 )
 
-target_compile_definitions(${EXE} PUBLIC
+target_compile_definitions(${EXE} PRIVATE
     -DVERSION_STRING="${VERSION_STRING}"
-    -DSHADERS_PATH="${GIT_REPO_BASE}/code/shaders/"
-    -DTEXTURES_PATH="${GIT_REPO_BASE}/textures/"
+    -DSHADERS_PATH="../code/shaders/"
+    -DTEXTURES_PATH="../textures/"
 )
 
 #######################################################
@@ -47,3 +47,7 @@ install(TARGETS ${EXE}
         DESTINATION bin
         #COMPONENT BlockregionApp
 )
+
+#install(FILES shaders/block.frag
+#        DESTINATION shaders
+#)

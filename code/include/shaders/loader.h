@@ -6,10 +6,13 @@
 #include <iostream>
 #include <streambuf>
 #include <optional>
+#include <filesystem>
 
 #include <GL/glew.h>
 
 #include <errors/br-expected.h>
+
+#include <spdlog/spdlog.h>
 
 namespace shaders
 {
@@ -32,6 +35,8 @@ inline
 errors::expected<GLuint>
 Loader::load(std::string filename, GLenum type)
 {
+    spdlog::get("blockregion")->debug("PWD={} SHADERS_PATH={} for {}", std::filesystem::current_path().native(), SHADERS_PATH, filename);
+
     std::string path = std::string(SHADERS_PATH) + filename;
     
     errors::expected<std::string> code = loadFile(path);

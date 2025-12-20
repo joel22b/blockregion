@@ -22,6 +22,7 @@ enum Code
     InitializationError,
     NotFound,
     AlreadyExists,
+    CriticalFailure,
 };
 
 inline
@@ -44,6 +45,8 @@ codeToStr(const Code code)
             return "Not Found";
         case Code::AlreadyExists:
             return "Already Exists";
+        case Code::CriticalFailure:
+            return "Critical Failure";
         default:
             return "undefined=" + std::to_string(static_cast<uint32_t>(code));
     }
@@ -75,6 +78,9 @@ operator<<(std::ostream& os, const Code& code)
             break;
         case Code::AlreadyExists:
             os << "Already Exists";
+            break;
+        case Code::CriticalFailure:
+            os << "Critical Failure";
             break;
         default:
             os << "undefined=" << static_cast<uint32_t>(code);

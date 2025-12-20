@@ -4,16 +4,20 @@
 
 #include <renderer/types.h>
 
+#include <spdlog/spdlog.h>
+
 namespace text
 {
 
 class Text
 {
 public:
-    Text() {}
+    Text():
+        m_logger(spdlog::get("blockregion"))
+    {}
     
     errors::expected<> initialize(std::string text, int x, int y, float scale, glm::vec3 color)
-        //text(text), x(x), y(y), scale(scale), color(color)
+        // text(text), x(x), y(y), scale(scale), color(color)
     {
         this->text = text;
         this->x = x;
@@ -24,7 +28,7 @@ public:
         errors::expected<renderer::RenderId> registerId = renderer::getGlobalRenderer()->registerNew(this);
         if (errors::has_error(registerId))
         {
-            std::cout << "Failed to register text for rendering: " << registerId.error() << std::endl;
+            m_logger->error("Failed to register text for rendering: {}", registerId.error());
             return errors::unexpected(registerId.error());
         }
 
@@ -38,7 +42,7 @@ public:
         errors::expected<> unregisterRet = renderer::getGlobalRenderer()->unregister(renderId);
         if (errors::has_error(unregisterRet))
         {
-            std::cout << "Failed to unregister text: " << unregisterRet.error() << std::endl;
+            m_logger->warn("Failed to unregister text: {}", unregisterRet.error());
         }
     }
 
@@ -57,6 +61,8 @@ public:
     glm::vec3 color;
 
     renderer::RenderId renderId;
+
+    std::shared_ptr<spdlog::logger> m_logger;
 };
 
 } // namespace text

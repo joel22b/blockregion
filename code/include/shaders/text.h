@@ -27,10 +27,10 @@ public:
     Text(std::shared_ptr<textures::Loader> texLoader) : Shader(texLoader)
     {}
 
-    void bindTextures(glm::vec3 color);
-    void unbindTextures();
+    errors::expected<> bindTextures(glm::vec3 color);
+    errors::expected<> unbindTextures();
 
-    void draw(GLuint VAO, GLuint VBO, std::string text, float x, float y, float scale);
+    errors::expected<> draw(GLuint VAO, GLuint VBO, std::string text, float x, float y, float scale);
 
     // This should only be called by Shader class
     errors::expected<> attachShaders() const;
@@ -44,26 +44,45 @@ private:
 ********************************/
 
 inline
-void
+errors::expected<>
 Text::bindTextures(glm::vec3 color)
 {
+    if (!valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is not in a valid state in call to bindTextures", name), errors::Code::InvalidState);
+    }
+
     Use();
 
     glUniform3f(glGetUniformLocation(getProgram(), "textColor"), color.x, color.y, color.z);
     glActiveTexture(GL_TEXTURE0);
+
+    return {};
 }
 
 inline
-void
+errors::expected<>
 Text::unbindTextures()
 {
+    if (!valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is not in a valid state in call to unbindTextures", name), errors::Code::InvalidState);
+    }
+
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    return {};
 }
 
 inline
-void
+errors::expected<>
 Text::draw(GLuint VAO, GLuint VBO, std::string text, float x, float y, float scale)
 {
+    if (!valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is not in a valid state in call to draw", name), errors::Code::InvalidState);
+    }
+
     glBindVertexArray(VAO);
 
     // iterate through all characters
@@ -99,12 +118,19 @@ Text::draw(GLuint VAO, GLuint VBO, std::string text, float x, float y, float sca
         x += (ch.advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
     }
     glBindVertexArray(0);
+
+    return {};
 }
 
 inline
 errors::expected<>
 Text::attachShaders() const
 {
+    if (valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is in a valid state in call to attachShaders", name), errors::Code::InvalidState);
+    }
+
     Loader loader;
     
     errors::expected<GLuint> vert = loader.load("text/text.vert", GL_VERTEX_SHADER);
@@ -136,6 +162,11 @@ inline
 errors::expected<>
 Text::loadTextures(std::shared_ptr<textures::Loader> texLoader)
 {
+    if (valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is in a valid state in call to loadTextures", name), errors::Code::InvalidState);
+    }
+
     Use();
 
     textures::TextureSet texSet = texLoader->getTextureSet("arial");

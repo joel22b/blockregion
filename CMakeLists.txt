@@ -40,6 +40,13 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 set(CPACK_DEBIAN_PACKAGE_DEPENDS)
+if(WIN32)
+    #set(CPACK_INSTALL_PREFIX "/usr/games/blockregion")
+elseif(APPLE)
+    #set(CPACK_INSTALL_PREFIX "/usr/games/blockregion")
+elseif(UNIX AND NOT APPLE)
+    set(CPACK_INSTALL_PREFIX "/usr/games/blockregion")
+endif()
 
 #######################################################
 # Load dependencies
@@ -59,6 +66,7 @@ find_package(Asio REQUIRED)
 # Add subdirectories
 #######################################################
 add_subdirectory(code)
+add_subdirectory(textures)
 
 #######################################################
 # Installation Instructions
@@ -82,6 +90,8 @@ if(WIN32)
 elseif(APPLE)
     set(CPACK_GENERATOR "DragNDrop;TGZ")
 elseif(UNIX AND NOT APPLE)
+    set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/games/blockregion")
+
     # RPM not supported yet
     set(CPACK_GENERATOR "DEB;TGZ")
 endif()

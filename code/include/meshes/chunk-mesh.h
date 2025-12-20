@@ -11,7 +11,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "shaders/block.h"
+#include <shaders/block.h>
+#include <errors/br-expected.h>
+
+#include <spdlog/spdlog.h>
 
 using namespace std;
 
@@ -42,7 +45,11 @@ public:
         if (ready)
         {
             // Now that we have all the required data, set the vertex buffers and its attribute pointers.
-            this->setupMesh();
+            if (errors::expected<> ret = setupMesh(); errors::has_error(ret))
+            {
+                spdlog::get("blockregion")->error("{}", ret.error());
+                return;
+            }
             this->readyToRender = true;
         }
     }
@@ -61,7 +68,11 @@ public:
         if (ready)
         {
             // Now that we have all the required data, set the vertex buffers and its attribute pointers.
-            this->setupMesh();
+            if (errors::expected<> ret = setupMesh(); errors::has_error(ret))
+            {
+                spdlog::get("blockregion")->error("{}", ret.error());
+                return;
+            }
             this->readyToRender = true;
         }
     }
@@ -71,16 +82,29 @@ public:
         shader = _shader;
     }
 
-    void doRender() {
+    errors::expected<>
+    doRender()
+    {
         if (readyToRender) {
-            Draw();
+            if (errors::expected<> ret = Draw(); errors::has_error(ret))
+            {
+                return ret;
+            }
         }
         else
         {
-            setupMesh();
+            if (errors::expected<> ret = setupMesh(); errors::has_error(ret))
+            {
+                return ret;
+            }
             readyToRender = true;
-            Draw();
+            if (errors::expected<> ret = Draw(); errors::has_error(ret))
+            {
+                return ret;
+            }
         }
+
+        return {};
     }
 
     bool ready() {
@@ -102,7 +126,7 @@ private:
 
     /*  Functions    */
     // Initializes all the buffer objects/arrays
-    void setupMesh()
+    errors::expected<> setupMesh()
     {
         //std::cout << "Setup Mesh" << std::endl;
         // Create buffers/arrays
@@ -110,27 +134,27 @@ private:
         GLenum err = glGetError();
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Gen VAO failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Gen VAO failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
         glGenBuffers(1, &VBO);
         err = glGetError();
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Gen VBO failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Gen VBO failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
 
         glBindVertexArray(this->VAO);
         err = glGetError();
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Bind VAO failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Bind VAO failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
         // Load data into vertex buffers
         glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
         err = glGetError();
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Bind VBO failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Bind VBO failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
         // A great thing about structs is that their memory layout is sequential for all its items.
         // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
@@ -139,7 +163,7 @@ private:
         err = glGetError();
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Load data failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Load data failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
 
         // Set the vertex attribute pointers
@@ -148,46 +172,47 @@ private:
         err = glGetError();
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Enable vertex attrib 0 failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Enable vertex attrib 0 failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Block_Face), (GLvoid*)0);
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Set vertex attrib 0 failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Set vertex attrib 0 failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
         // Vertex Normals
         glEnableVertexAttribArray(1);
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Enable vertex attrib 1 failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Enable vertex attrib 1 failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Block_Face), (GLvoid*)offsetof(Block_Face, Normal));
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Set vertex attrib 1 failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Set vertex attrib 1 failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
         // Vertex Texture Coords
         glEnableVertexAttribArray(2);
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Enable vertex attrib 2 failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Enable vertex attrib 2 failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Block_Face), (GLvoid*)offsetof(Block_Face, TexCoords));
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: setupMesh: Set vertex attrib 2 failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: setupMesh: Set vertex attrib 2 failed: 0x{:x}", err), errors::Code::InvalidArgument);
         }
 
         glBindVertexArray(0);
+
+        return {};
     }
 
     // Render the mesh
-    void Draw()
+    errors::expected<> Draw()
     {
         if (!shader)
         {
-            std::cout << "TRIED TO DRAW CHUNK WITHOUT SHADER" << std::endl;
-            return;
+            return errors::unexpected("Tried to draw chunk without shader", errors::Code::InvalidState);
         }
 
         shader->Use();
@@ -195,11 +220,22 @@ private:
         GLenum err = glGetError();
         if (err != GL_NO_ERROR)
         {
-            std::cout << "Chunk_Mesh: Draw: model update failed: " << err << std::endl;
+            return errors::unexpected(fmt::format("Chunk_Mesh: Draw: model update failed: 0x{:x}", err), errors::Code::Unknown);
         }
 
-        shader->bindTextures();
-        shader->draw(VAO, vertices.size());
-        shader->unbindTextures();
+        if (errors::expected<> ret = shader->bindTextures(); errors::has_error(ret))
+        {
+            return ret;
+        }
+        if (errors::expected<> ret = shader->draw(VAO, vertices.size()); errors::has_error(ret))
+        {
+            return ret;
+        }
+        if (errors::expected<> ret = shader->unbindTextures(); errors::has_error(ret))
+        {
+            return ret;
+        }
+
+        return {};
     }
 };

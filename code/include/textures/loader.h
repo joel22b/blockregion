@@ -8,6 +8,7 @@
 #include <optional>
 #include <iostream>
 #include <sys/stat.h>
+#include <filesystem>
 
 #include <errors/br-expected.h>
 
@@ -20,6 +21,8 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+#include <spdlog/spdlog.h>
 
 namespace textures
 {
@@ -47,6 +50,8 @@ private:
     void loadErrorTextures();
 
     std::map<std::string, TextureSet> textureSets;
+
+    std::shared_ptr<spdlog::logger> m_logger;
 };
 
 /********************************
@@ -54,8 +59,11 @@ private:
 ********************************/
 
 inline
-Loader::Loader()
+Loader::Loader():
+    m_logger(spdlog::get("blockregion"))
 {
+    m_logger->debug("PWD={} TEXTURES_PATH={}", std::filesystem::current_path().native(), TEXTURES_PATH);
+
     loadErrorTextures();
 
     // Construct path to textures.json
@@ -66,7 +74,7 @@ Loader::Loader()
     struct stat buffer;
     if (stat(jsonPath.str().c_str(), &buffer) != 0)
     {
-        std::cerr << "Cannot find textures JSON, no textures will be loaded. Path: " << jsonPath.str() << std::endl;
+        m_logger->error("Cannot find textures JSON, no textures will be loaded. Path: {}", jsonPath.str());
         return;
     }
 
@@ -74,7 +82,7 @@ Loader::Loader()
     std::ifstream textureJson(jsonPath.str());
     if (!textureJson.is_open())
     {
-        std::cerr << "Failed to open textures JSON file: " << jsonPath.str() << std::endl;
+        m_logger->error("Failed to open textures JSON file: {}", jsonPath.str());
         return;
     }
 
@@ -86,13 +94,13 @@ Loader::Loader()
         errors::expected<> retParse = parseJson(*(textures.find("textures")));
         if (errors::has_error(retParse))
         {
-            std::cout << "Failed to load textures from JSON: " << retParse.error() << std::endl;
+            m_logger->error("Failed to load textures from JSON: {}", retParse.error());
             return;
         }
     }
     catch (const nlohmann::json::parse_error& e)
     {
-        std::cerr << "JSON parsing error: " << e.what() << std::endl;
+        m_logger->error("JSON parsing error: {}", e.what());
         return;
     }
 }
@@ -207,12 +215,6 @@ Loader::loadTexture(std::string name,
     TextureType type, int tileWidth, int tileHeight,
     std::map<TileID, glm::vec2> tileCoords)
 {
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
-        std::cout << "Error tex load start: " << err << std::endl;
-    }
-
     // Find path to texture
     std::ostringstream path;
     path << TEXTURES_PATH << name;
@@ -236,7 +238,6 @@ Loader::loadTexture(std::string name,
     image = SOIL_load_image(path.str().c_str(), &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
     if (image == NULL)
     {
-        //std::cout << "Failed to load texture from disk: " << path.str() << std::endl;
         return errors::unexpected("Failed to load texture from disk: " + path.str(), errors::Code::InvalidArgument);
     }
 
@@ -438,15 +439,14 @@ Loader::loadErrorTextures()
         &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
     if (image == NULL)
     {
-        //LOG(WARN, "Failed to load texture from disk: \"" + name + "\" from path: " + path);
-        std::cout << "Failed to load texture from memory: " << "error" << std::endl;
+        m_logger->error("Failed to load texture from memory: {}", "error");
         return;
     }
 
     errors::expected<int> texId = bindTexture(image, textureWidth, textureHeight);
     if (errors::has_error(texId))
     {
-        std::cout << "Failed to bind error texture: " << texId.error() << std::endl;
+        m_logger->error("Failed to bind error texture: {}", texId.error());
         return;
     }
 
@@ -460,7 +460,7 @@ Loader::loadErrorTextures()
     errors::expected<> retAdd = addTexture("error", tex, 1, 1, std::move(tileCoords));
     if (errors::has_error(retAdd))
     {
-        std::cout << "Failed to add error texture to map: " << retAdd.error() << std::endl;
+        m_logger->error("Failed to add error texture to map: {}", retAdd.error());
         return;
     }
 }
@@ -502,7 +502,7 @@ Loader::loadText(std::string name)
             // Load character glyph 
             if (FT_Load_Char(face, c, FT_LOAD_RENDER))
             {
-                std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+                m_logger->error("ERROR::FREETYTPE: Failed to load Glyph [0x{:x}]", c);
                 continue;
             }
             // generate texture
