@@ -27,7 +27,6 @@ class Renderer
 {
 public:
     Renderer();
-    ~Renderer();
 
     std::shared_ptr<Window> getWindow() { return window; }
 
@@ -94,6 +93,15 @@ private:
 
     std::shared_ptr<spdlog::logger> m_logger;
 };
+
+// Meyer's Singleton design for thread safe and lazy initialization
+inline
+std::shared_ptr<Renderer>
+getGlobalRenderer()
+{
+    static auto instance = std::make_shared<Renderer>();
+    return instance;
+}
 
 } // namespace renderer
 

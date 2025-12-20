@@ -12,17 +12,16 @@ class Text
 public:
     Text() {}
     
-    errors::expected<> initialize(std::shared_ptr<renderer::Renderer> renderer, std::string text, int x, int y, float scale, glm::vec3 color)
-        //renderer(renderer), text(text), x(x), y(y), scale(scale), color(color)
+    errors::expected<> initialize(std::string text, int x, int y, float scale, glm::vec3 color)
+        //text(text), x(x), y(y), scale(scale), color(color)
     {
-        this->renderer = renderer;
         this->text = text;
         this->x = x;
         this->y = y;
         this->scale = scale;
         this->color = color;
 
-        errors::expected<renderer::RenderId> registerId = renderer->registerNew(this);
+        errors::expected<renderer::RenderId> registerId = renderer::getGlobalRenderer()->registerNew(this);
         if (errors::has_error(registerId))
         {
             std::cout << "Failed to register text for rendering: " << registerId.error() << std::endl;
@@ -36,7 +35,7 @@ public:
 
     ~Text()
     {
-        errors::expected<> unregisterRet = renderer->unregister(renderId);
+        errors::expected<> unregisterRet = renderer::getGlobalRenderer()->unregister(renderId);
         if (errors::has_error(unregisterRet))
         {
             std::cout << "Failed to unregister text: " << unregisterRet.error() << std::endl;
@@ -46,7 +45,7 @@ public:
     errors::expected<> updateText(std::string newText)
     {
         text = newText;
-        errors::expected<> regRet = renderer->registerExisting(renderId, this);
+        errors::expected<> regRet = renderer::getGlobalRenderer()->registerExisting(renderId, this);
         return regRet;
     }
 
@@ -57,7 +56,6 @@ public:
     float scale;
     glm::vec3 color;
 
-    std::shared_ptr<renderer::Renderer> renderer;
     renderer::RenderId renderId;
 };
 

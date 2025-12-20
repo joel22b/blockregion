@@ -1,35 +1,38 @@
 #include "game.h"
 
-//#include "utils/Logger.h"
-//#define LOG(severity, msg) Logger::log("Game.cpp", severity, msg)
-
-Game::Game(std::shared_ptr<renderer::Renderer> renderer):
-	renderer(renderer)
+Game::Game()
 {
-	renderer->updateFOV(45.0f);
+	renderer::getGlobalRenderer()->updateFOV(45.0f);
+	renderer::getGlobalRenderer()->getWindow()->setVSync(true);
 
-	world = new world::World(renderer);
+	// Register input callbacks
+	renderer::getGlobalRenderer()->getWindow()->registerKeyboardCallback(std::bind(&keyCallback, this,
+        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    renderer::getGlobalRenderer()->getWindow()->registerMouseCallback(std::bind(&mouseCallback, this,
+        std::placeholders::_1, std::placeholders::_2));
+
+	world = new world::World();
 
 	player = new Player(world, world::Coord(8, 20, 8), glm::vec3(1, 2, 1));
 
 	world->loadArea(player->getPosition());
 
 	// Create all the text for the game
-	textChunkCoords.initialize(renderer, "Chunk coord:", 25.0f, 200.0f, 0.5f, glm::vec3(1, 1, 1));
-	textKeysPressed.initialize(renderer, "Keys:", 25.0f, 175.0f, 0.5f, glm::vec3(1, 1, 1));
-	textCameraDirection.initialize(renderer, "Camera direction:", 25.0f, 150.0f, 0.5f, glm::vec3(1, 1, 1));
-	textCameraPosition.initialize(renderer, "Camera position:", 25.0f, 125.0f, 0.5f, glm::vec3(1, 1, 1));
-	textPlayerDirection.initialize(renderer, "Player direction:", 25.0f, 100.0f, 0.5f, glm::vec3(1, 1, 1));
-	textPlayerPosition.initialize(renderer, "Player position:", 25.0f, 75.0f, 0.5f, glm::vec3(1, 1, 1));
-	textMsPerFrame.initialize(renderer, "ms per frame:", 25.0f, 50.0f, 0.5f, glm::vec3(1, 1, 1));
-	textFps.initialize(renderer, "fps:", 25.0f, 25.0f, 0.5f, glm::vec3(1, 1, 1));
+	textChunkCoords.initialize("Chunk coord:", 25.0f, 200.0f, 0.5f, glm::vec3(1, 1, 1));
+	textKeysPressed.initialize("Keys:", 25.0f, 175.0f, 0.5f, glm::vec3(1, 1, 1));
+	textCameraDirection.initialize("Camera direction:", 25.0f, 150.0f, 0.5f, glm::vec3(1, 1, 1));
+	textCameraPosition.initialize("Camera position:", 25.0f, 125.0f, 0.5f, glm::vec3(1, 1, 1));
+	textPlayerDirection.initialize("Player direction:", 25.0f, 100.0f, 0.5f, glm::vec3(1, 1, 1));
+	textPlayerPosition.initialize("Player position:", 25.0f, 75.0f, 0.5f, glm::vec3(1, 1, 1));
+	textMsPerFrame.initialize("ms per frame:", 25.0f, 50.0f, 0.5f, glm::vec3(1, 1, 1));
+	textFps.initialize("fps:", 25.0f, 25.0f, 0.5f, glm::vec3(1, 1, 1));
 }
 
-Game::~Game() {
-	//LOG(INFO, "Deleting");
-}
+Game::~Game()
+{}
 
-void Game::doInput(GLfloat deltaTime) {
+void Game::doInput(GLfloat deltaTime)
+{
 	if (keys[GLFW_KEY_W]) {
 		player->processKeyboardInput(FORWARD, deltaTime);
 	}
@@ -52,16 +55,15 @@ void Game::doInput(GLfloat deltaTime) {
 	}
 }
 
-void Game::doUpdate(GLfloat deltaTime) {
+void Game::doUpdate(GLfloat deltaTime)
+{
 	player->doUpdate(deltaTime);
 
-	renderer->updateCamera(player->getViewMatrix(), player->getPosition());
+	renderer::getGlobalRenderer()->updateCamera(player->getViewMatrix(), player->getPosition());
 }
 
 void Game::doRender() {
 	//std::string playerInfo = player->doUpdate();
-
-	renderer->renderAll();
 
 	//text->RenderText(playerInfo, 25.0f, 225.0f, 1.0f, glm::vec3(1, 1, 1));
 
@@ -94,10 +96,11 @@ void Game::updateFPS(std::string fpsStr, std::string msStr)
 	textFps.updateText(fpsStr);
 }
 
-void Game::keyCallback(int key, int scancode, int action, int mode) {
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-		//glfwSetWindowShouldClose(window, GL_TRUE);
-		renderer->getWindow()->requestClose();
+void Game::keyCallback(int key, int scancode, int action, int mode)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+	{
+		renderer::getGlobalRenderer()->getWindow()->requestClose();
 	}
 	if (key >= 0 && key < 1024) {
 		if (action == GLFW_PRESS) {
@@ -109,7 +112,8 @@ void Game::keyCallback(int key, int scancode, int action, int mode) {
 	}
 }
 
-void Game::mouseCallback(double xPos, double yPos) {
+void Game::mouseCallback(double xPos, double yPos)
+{
 	if (firstMouse) {
 		lastX = xPos;
 		lastY = yPos;

@@ -41,11 +41,6 @@ Renderer::Renderer()
     textShader = std::make_shared<shaders::Text>(texLoader);
 }
 
-Renderer::~Renderer()
-{
-    glfwTerminate();
-}
-
 void
 Renderer::updateFOV(float fov)
 {
@@ -66,6 +61,10 @@ Renderer::updateCamera(glm::mat4 viewMatrix, world::Coord position)
 void
 Renderer::renderAll()
 {
+    // Clear previous data and set background colour
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     struct MeshRenderer
     {
         void operator()(Chunk_Mesh& cMesh) const { cMesh.doRender(); }

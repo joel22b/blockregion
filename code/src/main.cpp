@@ -79,18 +79,16 @@ int main() {
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     }
 
-    std::shared_ptr<renderer::Renderer> renderer = std::make_shared<renderer::Renderer>();
+    game = new Game();
 
-    game = new Game(renderer);
-
-    renderer->getWindow()->registerKeyboardCallback(KeyCallback);
-    renderer->getWindow()->registerMouseCallback(MouseCallback);
-    //renderer->getWindow()->registerKeyboardCallback(game->keyCallback);
-    //renderer->getWindow()->registerMouseCallback(game->mouseCallback);
+    renderer::getGlobalRenderer()->getWindow()->registerKeyboardCallback(std::bind(&Game::keyCallback, game,
+        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+    renderer::getGlobalRenderer()->getWindow()->registerMouseCallback(std::bind(&Game::mouseCallback, game,
+        std::placeholders::_1, std::placeholders::_2));
 
     // Main program loop
     logger->debug("Started main loop");
-    while (!renderer->getWindow()->hasWindow()) {
+    while (!renderer::getGlobalRenderer()->getWindow()->hasWindow()) {
         // Get time since last frame
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -112,14 +110,11 @@ int main() {
         glfwPollEvents();
         game->doInput(deltaTime);
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         game->doUpdate(deltaTime);
 
         game->doRender();
 
-        //glfwSwapBuffers(window);
+        renderer::getGlobalRenderer()->renderAll();
     }
     logger->debug("Finished main loop");
 

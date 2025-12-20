@@ -25,10 +25,6 @@
 
 class Game {
 private:
-	//Camera camera;
-
-	std::shared_ptr<renderer::Renderer> renderer;
-
 	world::World* world;
 
 	Player* player;
@@ -48,7 +44,7 @@ private:
 	text::Text textFps;
 
 public:
-	Game(std::shared_ptr<renderer::Renderer> renderer);
+	Game();
 	~Game();
 
 	void doInput(GLfloat deltaTime);

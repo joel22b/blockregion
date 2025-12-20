@@ -98,7 +98,7 @@ Window::initializeWindow()
 
 Window::~Window()
 {
-    m_logger->info("Renderer closing window");
+    glfwDestroyWindow(window);
 }
 
 void
@@ -113,11 +113,6 @@ Window::requestClose()
     }
 
     glfwSetWindowShouldClose(window, GL_TRUE);
-
-    if (window != nullptr)
-    {
-        m_logger->warn("Window still set");
-    }
 }
 
 bool
