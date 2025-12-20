@@ -67,6 +67,7 @@ TODO: Add instructions for Windows build
 - Added spdlog to handling logging needs
 - Added coordinate system with type safety and automatic conversions
 - Added global renderer using Meyer's Singleton design pattern
+- Make the window fullscreen and on the primary monitor
 
 ## v0.1.0 Shader and Texture Revamp
 
