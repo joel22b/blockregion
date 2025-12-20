@@ -66,6 +66,7 @@ TODO: Add instructions for Windows build
 - Incorporated text rendering into common loading and rendering pipelines
 - Added spdlog to handling logging needs
 - Added coordinate system with type safety and automatic conversions
+- Added global renderer using Meyer's Singleton design pattern
 
 ## v0.1.0 Shader and Texture Revamp
 
