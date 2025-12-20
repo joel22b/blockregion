@@ -6,14 +6,14 @@ Game::Game()
 	renderer::getGlobalRenderer()->getWindow()->setVSync(true);
 
 	// Register input callbacks
-	renderer::getGlobalRenderer()->getWindow()->registerKeyboardCallback(std::bind(&keyCallback, this,
+	renderer::getGlobalRenderer()->getWindow()->registerKeyboardCallback(std::bind(&Game::keyCallback, this,
         std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    renderer::getGlobalRenderer()->getWindow()->registerMouseCallback(std::bind(&mouseCallback, this,
+    renderer::getGlobalRenderer()->getWindow()->registerMouseCallback(std::bind(&Game::mouseCallback, this,
         std::placeholders::_1, std::placeholders::_2));
 
-	world = new world::World();
+	world = std::make_shared<world::World>();
 
-	player = new Player(world, world::Coord(8, 20, 8), glm::vec3(1, 2, 1));
+	player = std::make_shared<Player>(world, world::Coord(8, 20, 8), glm::vec3(1, 2, 1));
 
 	world->loadArea(player->getPosition());
 

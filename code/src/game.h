@@ -25,9 +25,9 @@
 
 class Game {
 private:
-	world::World* world;
+	std::shared_ptr<world::World> world;
 
-	Player* player;
+	std::shared_ptr<Player> player;
 
 	bool keys[1024] = { false };
 	GLfloat lastX;

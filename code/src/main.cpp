@@ -22,13 +22,6 @@
 
 #include "game.h"
 
-// Window dimensions
-const GLint WIDTH = 1600, HEIGHT = 800;
-int SCREEN_WIDTH, SCREEN_HEIGHT;
-
-void KeyCallback(int key, int scancode, int action, int mods);
-void MouseCallback(double xPos, double yPos);
-
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
@@ -38,8 +31,6 @@ double lastTime = glfwGetTime();
 std::string mspfText = "test", fpsText = "test";
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-
-Game* game;
 
 int main() {
     // Create logger first
@@ -79,12 +70,7 @@ int main() {
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     }
 
-    game = new Game();
-
-    renderer::getGlobalRenderer()->getWindow()->registerKeyboardCallback(std::bind(&Game::keyCallback, game,
-        std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-    renderer::getGlobalRenderer()->getWindow()->registerMouseCallback(std::bind(&Game::mouseCallback, game,
-        std::placeholders::_1, std::placeholders::_2));
+    std::unique_ptr<Game> game = std::make_unique<Game>();
 
     // Main program loop
     logger->debug("Started main loop");
@@ -119,7 +105,7 @@ int main() {
     logger->debug("Finished main loop");
 
     // If here, program is exiting
-    delete game;
+    game = nullptr;
 
     // Cleanup OpenGL
     {
@@ -129,12 +115,4 @@ int main() {
     logger->info("Done");
 
     return EXIT_SUCCESS;
-}
-
-void KeyCallback(int key, int scancode, int action, int mods) {
-    game->keyCallback(key, scancode, action, mods);
-}
-
-void MouseCallback(double xPos, double yPos) {
-    game->mouseCallback(xPos, yPos);
 }

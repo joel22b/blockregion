@@ -1,10 +1,8 @@
 #include "entity/player.h"
 
-Player::Player(world::World* world, world::Coord position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed) : Entity(world, position, dimentions, yaw, pitch, flying, speed, jumpSpeed) {
-	camera = new Camera(position.getVec());
+Player::Player(std::shared_ptr<world::World> world, world::Coord position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed) : Entity(world, position, dimentions, yaw, pitch, flying, speed, jumpSpeed) {
+	camera = std::make_unique<Camera>(position.getVec());
 	camera->setCameraVectors(position.getVec() + glm::vec3(0, 1, 0), front, right, up);
-
-	//chunkCoords = world->getChunkCoords((int)position.x, (int)position.z);
 }
 
 void Player::processKeyboardInput(Player_Movement movement, GLfloat deltaTime) {

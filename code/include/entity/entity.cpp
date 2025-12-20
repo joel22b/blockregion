@@ -1,6 +1,6 @@
 #include "entity/entity.h"
 
-Entity::Entity(world::World* world, world::Coord position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed):
+Entity::Entity(std::shared_ptr<world::World> world, world::Coord position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed):
 	position(position)
 {
 	this->world = world;

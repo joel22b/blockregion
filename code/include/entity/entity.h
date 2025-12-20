@@ -16,7 +16,7 @@
 
 class Entity {
 public:
-	Entity(world::World* world, world::Coord position, glm::vec3 dimentions, GLfloat yaw = 0.0f, GLfloat pitch = 0.0f, bool flying = false, float speed = 6.0f, float jumpSpeed = 6.0f);
+	Entity(std::shared_ptr<world::World> world, world::Coord position, glm::vec3 dimentions, GLfloat yaw = 0.0f, GLfloat pitch = 0.0f, bool flying = false, float speed = 6.0f, float jumpSpeed = 6.0f);
 	~Entity();
 
 	virtual void doUpdate(GLfloat deltaTime);
@@ -28,7 +28,7 @@ public:
 	float getZ();
 	
 protected:
-	world::World* world;
+	std::shared_ptr<world::World> world;
 
 	world::Coord position;
 	glm::vec3 dimentions, front, frontHor, worldUp, up, right;
