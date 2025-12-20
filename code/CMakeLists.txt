@@ -12,7 +12,7 @@ add_executable(${EXE}
     ${BLOCKREGION_SOURCE_FILES}
 )
 
-target_include_directories(${EXE} PUBLIC 
+target_include_directories(${EXE} PRIVATE 
     ${OPENGL_INCLUDE_DIR}
     ${SOIL2_INCLUDE_DIR}
     ${GLM_INCLUDE_DIRS}
@@ -40,4 +40,10 @@ target_compile_definitions(${EXE} PUBLIC
     -DTEXTURES_PATH="${GIT_REPO_BASE}/textures/"
 )
 
-
+#######################################################
+# Installation Instructions
+#######################################################
+install(TARGETS ${EXE}
+        DESTINATION bin
+        #COMPONENT BlockregionApp
+)
