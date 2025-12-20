@@ -26,10 +26,26 @@ Game::Game()
 	textPlayerPosition.initialize("Player position:", 25.0f, 75.0f, 0.5f, glm::vec3(1, 1, 1));
 	textMsPerFrame.initialize("ms per frame:", 25.0f, 50.0f, 0.5f, glm::vec3(1, 1, 1));
 	textFps.initialize("fps:", 25.0f, 25.0f, 0.5f, glm::vec3(1, 1, 1));
+
+	running = true;
 }
 
 Game::~Game()
 {}
+
+void
+Game::stop()
+{
+	renderer::getGlobalRenderer()->getWindow()->requestClose();
+
+	running = false;
+}
+
+bool
+Game::isRunning()
+{
+	return running;
+}
 
 void Game::doInput(GLfloat deltaTime)
 {
@@ -60,34 +76,13 @@ void Game::doUpdate(GLfloat deltaTime)
 	player->doUpdate(deltaTime);
 
 	renderer::getGlobalRenderer()->updateCamera(player->getViewMatrix(), player->getPosition());
-}
 
-void Game::doRender() {
-	//std::string playerInfo = player->doUpdate();
-
-	//text->RenderText(playerInfo, 25.0f, 225.0f, 1.0f, glm::vec3(1, 1, 1));
-
-	std::ostringstream keyPressed, chunkCoord;
-	/*world::Chunk* chunk = world->getChunkByCoords(player->getPosition().x, player->getPosition().z);
-	if (chunk == nullptr) {
-		chunkCoord << "Chunk coord: NULL";
-	}
-	else {
-		chunkCoord << "Chunk coord: x: " << chunk->getXPos() << " z: " << chunk->getZPos();
-	}
-	textChunkCoords.updateText(chunkCoord.str());*/
-	keyPressed << "Keys: W: " << keys[GLFW_KEY_W] << " S: " << keys[GLFW_KEY_S] << " A: " << keys[GLFW_KEY_A] << " D: " << keys[GLFW_KEY_D];
-	textKeysPressed.updateText(keyPressed.str());
-
-	std::ostringstream playerPos, playerDir, camPos, camDir;
-	camDir << "Camera direction: x: " << player->getCameraDirection().x << " y: " << player->getCameraDirection().y << " z: " << player->getCameraDirection().z;
-	textCameraDirection.updateText(camDir.str());
-	camPos << "Camera position: x: " << player->getCameraPosition().x << " y: " << player->getCameraPosition().y << " z: " << player->getCameraPosition().z;
-	textCameraPosition.updateText(camPos.str());
-	playerDir << "Player direction: x: " << player->getDirection().x << " y: " << player->getDirection().y << " z: " << player->getDirection().z;
-	textPlayerDirection.updateText(playerDir.str());
-	playerPos << "Player position: x: " << player->getPosition().x << " y: " << player->getPosition().y << " z: " << player->getPosition().z;
-	textPlayerPosition.updateText(playerPos.str());
+	// Dashboard update
+	textKeysPressed.updateText(fmt::format("Keys: W={} A={} S={} D={}", keys[GLFW_KEY_W], keys[GLFW_KEY_A], keys[GLFW_KEY_S], keys[GLFW_KEY_D]));
+	textCameraDirection.updateText(fmt::format("Camera direction: x={}, y={} z={}", player->getCameraDirection().x, player->getCameraDirection().y, player->getCameraDirection().z));
+	textCameraPosition.updateText(fmt::format("Camera position: {}", player->getCameraPosition()));
+	textPlayerDirection.updateText(fmt::format("Player direction: x={} y={} z={}", player->getDirection().x, player->getDirection().y, player->getDirection().z));
+	textPlayerPosition.updateText(fmt::format("Player position: {}", player->getPosition()));
 }
 
 void Game::updateFPS(std::string fpsStr, std::string msStr)
@@ -100,7 +95,7 @@ void Game::keyCallback(int key, int scancode, int action, int mode)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 	{
-		renderer::getGlobalRenderer()->getWindow()->requestClose();
+		stop();
 	}
 	if (key >= 0 && key < 1024) {
 		if (action == GLFW_PRESS) {

@@ -1,8 +1,8 @@
 #include "entity/player.h"
 
 Player::Player(std::shared_ptr<world::World> world, world::Coord position, glm::vec3 dimentions, GLfloat yaw, GLfloat pitch, bool flying, float speed, float jumpSpeed) : Entity(world, position, dimentions, yaw, pitch, flying, speed, jumpSpeed) {
-	camera = std::make_unique<Camera>(position.getVec());
-	camera->setCameraVectors(position.getVec() + glm::vec3(0, 1, 0), front, right, up);
+	camera = std::make_unique<Camera>(position);
+	camera->setCameraVectors(position + world::Coord(0, 1, 0), front, right, up);
 }
 
 void Player::processKeyboardInput(Player_Movement movement, GLfloat deltaTime) {
@@ -59,7 +59,7 @@ glm::mat4 Player::getViewMatrix() {
 	return camera->getViewMatrix();
 }
 
-glm::vec3 Player::getCameraPosition() {
+world::Coord Player::getCameraPosition() {
 	return camera->getPosition();
 }
 
@@ -77,5 +77,5 @@ void Player::updateVectors() {
 	this->right = glm::normalize(glm::cross(this->front, this->worldUp));
 	this->up = glm::normalize(glm::cross(this->right, this->front));
 
-	camera->setCameraVectors(position.getVec() + glm::vec3(0, 1, 0), front, right, up);
+	camera->setCameraVectors(position + world::Coord(0, 1, 0), front, right, up);
 }

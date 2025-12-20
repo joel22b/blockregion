@@ -11,6 +11,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <world/types.h>
+
 /*enum Camera_Movement {
 	FORWARD,
 	BACKWARD,
@@ -26,7 +28,7 @@ const GLfloat ZOOM = 45.0f;
 
 class Camera {
 private:
-	glm::vec3 position;
+	world::Coord position;
 	glm::vec3 front;
 	glm::vec3 up;
 	glm::vec3 right;
@@ -51,11 +53,10 @@ private:
 	}
 
 public:
-	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
-		GLfloat yaw = YAW, GLfloat pitch = PITCH) : front(glm::vec3(0.0f, 0.0f, -1.0f)),
-		movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
-
-		this->position = position;
+	Camera(world::Coord position, glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
+		GLfloat yaw = YAW, GLfloat pitch = PITCH) : position(position), front(glm::vec3(0.0f, 0.0f, -1.0f)),
+		movementSpeed(SPEED), mouseSensitivity(SENSITIVITY), zoom(ZOOM)
+	{
 		this->worldUp = up;
 		this->yaw = yaw;
 		this->pitch = pitch;
@@ -63,10 +64,9 @@ public:
 	}
 
 	Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw,
-		GLfloat pitch) : front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED),
-		mouseSensitivity(SENSITIVITY), zoom(ZOOM) {
-
-		this->position = glm::vec3(posX, posY, posZ);
+		GLfloat pitch) : position(world::Coord(posX, posY, posZ)), front(glm::vec3(0.0f, 0.0f, -1.0f)), movementSpeed(SPEED),
+		mouseSensitivity(SENSITIVITY), zoom(ZOOM)
+	{
 		this->worldUp = glm::vec3(upX, upY, upZ);
 		this->yaw = yaw;
 		this->pitch = pitch;
@@ -74,7 +74,7 @@ public:
 	}
 
 	glm::mat4 getViewMatrix() {
-		return glm::lookAt(this->position, this->position + this->front, this->up);
+		return glm::lookAt(position.getVec(), position.getVec() + this->front, this->up);
 	}
 
 	glm::vec3 getViewDirection() {
@@ -124,11 +124,11 @@ public:
 		return this->zoom;
 	}
 
-	glm::vec3 getPosition() {
-		return this->position;
+	world::Coord getPosition() {
+		return position;
 	}
 
-	void setCameraVectors(glm::vec3 position, glm::vec3 front, glm::vec3 right, glm::vec3 up) {
+	void setCameraVectors(world::Coord position, glm::vec3 front, glm::vec3 right, glm::vec3 up) {
 		this->position = position;
 		this->front = front;
 		this->right = right;

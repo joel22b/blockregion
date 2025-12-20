@@ -74,7 +74,7 @@ int main() {
 
     // Main program loop
     logger->debug("Started main loop");
-    while (!renderer::getGlobalRenderer()->getWindow()->hasWindow()) {
+    while (game->isRunning()) {
         // Get time since last frame
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -97,8 +97,6 @@ int main() {
         game->doInput(deltaTime);
 
         game->doUpdate(deltaTime);
-
-        game->doRender();
 
         renderer::getGlobalRenderer()->renderAll();
     }

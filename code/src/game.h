@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <atomic>
 
 #ifndef GLEW_STATIC
 #define GLEW_STATIC
@@ -43,13 +44,17 @@ private:
 	text::Text textMsPerFrame;
 	text::Text textFps;
 
+	std::atomic<bool> running {false};
+
 public:
 	Game();
 	~Game();
 
+	void stop();
+	bool isRunning();
+
 	void doInput(GLfloat deltaTime);
 	void doUpdate(GLfloat deltaTime);
-	void doRender();
 	
 	void updateFPS(std::string fpsStr, std::string msStr);
 

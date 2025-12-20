@@ -56,6 +56,14 @@ struct Coord
         z = vec.z;
         return *this;
     }
+
+    Coord& operator+(const Coord other)
+    {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+        return *this;
+    }
 };
 
 struct GridCoord
