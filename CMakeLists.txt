@@ -50,6 +50,7 @@ find_package(PkgConfig REQUIRED)
 find_package(Freetype REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(Spdlog REQUIRED)
+find_package(Asio REQUIRED)
 
 #######################################################
 # Add subdirectories

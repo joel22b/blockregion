@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <atomic>
 
 #ifndef GLEW_STATIC
 #define GLEW_STATIC
@@ -25,23 +26,14 @@
 
 class Game {
 private:
-	//Camera camera;
-	std::shared_ptr<textures::Loader> texLoader;
-	std::shared_ptr<shaders::Block> blockShader;
+	std::shared_ptr<world::World> world;
 
-	std::shared_ptr<renderer::Renderer> renderer;
-
-	world::World* world;
-
-	Player* player;
+	std::shared_ptr<Player> player;
 
 	bool keys[1024] = { false };
 	GLfloat lastX;
 	GLfloat lastY;
 	bool firstMouse = true;
-
-	void loadShaders(int screenWidth, int screenHeight);
-	void loadTextures();
 
 	text::Text textChunkCoords;
 	text::Text textKeysPressed;
@@ -52,18 +44,20 @@ private:
 	text::Text textMsPerFrame;
 	text::Text textFps;
 
+	std::atomic<bool> running {false};
+
 public:
-	Game(int screenWidth, int screenHeight);
+	Game();
 	~Game();
+
+	void stop();
+	bool isRunning();
 
 	void doInput(GLfloat deltaTime);
 	void doUpdate(GLfloat deltaTime);
-	void doRender();
 	
 	void updateFPS(std::string fpsStr, std::string msStr);
 
-	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
-	void mouseCallback(GLFWwindow* window, double xPos, double yPos);
-
-	void updateProjection(GLfloat fov, int screenWidth, int screenHeight);
+	void keyCallback(int key, int scancode, int action, int mode);
+	void mouseCallback(double xPos, double yPos);
 };

@@ -19,7 +19,7 @@ template <typename T, bool AutoRegister = true>
 struct Wrapper
 {
 public:
-    Wrapper(std::shared_ptr<Renderer> renderer, std::shared_ptr<T> object);
+    Wrapper(std::shared_ptr<T> object);
     ~Wrapper();
 
     std::shared_ptr<T>
@@ -31,7 +31,6 @@ public:
     errors::expected<> update();
 
 private:
-    std::shared_ptr<Renderer> renderer;
     std::shared_ptr<T> object;
     RenderId renderId {INVALID_ID};
 };
@@ -41,12 +40,12 @@ private:
 ********************************/
 
 template <typename T, bool AutoRegister>
-Wrapper<T, AutoRegister>::Wrapper(std::shared_ptr<Renderer> renderer, std::shared_ptr<T> object) :
-    renderer(renderer), object(object)
+Wrapper<T, AutoRegister>::Wrapper(std::shared_ptr<T> object) :
+    object(object)
 {
     if (AutoRegister)
     {
-        errors::expected<RenderId> retId = renderer->registerNew(object);
+        errors::expected<RenderId> retId = renderer::getGlobalRenderer()->registerNew(object);
         if (errors::has_error(retId))
         {
             //spdlog::get("blockregion")->error("Renderer Wrapper construct failed to auto register object: {}", retId.error());
@@ -59,7 +58,7 @@ Wrapper<T, AutoRegister>::Wrapper(std::shared_ptr<Renderer> renderer, std::share
 template <typename T, bool AutoRegister>
 Wrapper<T, AutoRegister>::~Wrapper()
 {
-    renderer->unregister(renderId);
+    renderer::getGlobalRenderer()->unregister(renderId);
 }
 
 template <typename T, bool AutoRegister>
@@ -71,7 +70,7 @@ Wrapper<T, AutoRegister>::update()
         object.update();
     }
 
-    errors::expected<> ret = renderer->registerExisting(renderId, object);
+    errors::expected<> ret = renderer::getGlobalRenderer()->registerExisting(renderId, object);
     if (errors::has_error(ret))
     {
         return ret;

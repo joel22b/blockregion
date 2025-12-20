@@ -7,11 +7,9 @@
 namespace world
 {
 
-World::World(std::shared_ptr<renderer::Renderer> _renderer)
+World::World()
 {
 	m_logger = spdlog::get("blockregion");
-	
-	renderer = _renderer;
 }
 
 World::~World()
@@ -56,7 +54,7 @@ World::getChunk(ChunkCoord coord)
 		return nullptr;
 	}
 
-	std::shared_ptr<renderer::Wrapper<Chunk>> wrapper = std::make_shared<renderer::Wrapper<Chunk>>(renderer, chunk.value());
+	std::shared_ptr<renderer::Wrapper<Chunk>> wrapper = std::make_shared<renderer::Wrapper<Chunk>>(chunk.value());
 	return wrapper;
 }
 

@@ -9,16 +9,29 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/noise.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <renderer/types.h>
+#include <renderer/window.h>
+#include <errors/br-expected.h>
+#include <world/types.h>
+
 
 namespace renderer
 {
+
+using KeyboardCallback = std::function<void(int, int, int, int)>;
+using MouseCallback = std::function<void(double, double)>;
 
 class Renderer
 {
 public:
     Renderer();
-    Renderer(std::shared_ptr<textures::Loader> _texLoader, std::shared_ptr<shaders::Block> _blockShader);
+
+    std::shared_ptr<Window> getWindow() { return window; }
+
+    void updateFOV(float fov);
+    void updateCamera(glm::mat4 viewMatrix, world::Coord position);
 
     void renderAll();
 
@@ -33,7 +46,6 @@ public:
 
         RenderId id = getNewId();
         meshes.emplace(id, newMesh.value());
-        //std::cout << "registerNew Id=" << id << std::endl;
         return id;
     }
 
@@ -56,7 +68,6 @@ public:
         }
 
         meshes[id] = newMesh.value();
-        //std::cout << "registerExisting Id=" << id << std::endl;
         return {};
     }
 
@@ -68,6 +79,8 @@ private:
 
     RenderId getNewId();
 
+    std::shared_ptr<Window> window;
+
     std::shared_ptr<textures::Loader> texLoader;
 
     // Shaders
@@ -77,7 +90,18 @@ private:
     std::map<RenderId, std::shared_ptr<MeshTypes>> meshes;
 
     RenderId nextId {1};
+
+    std::shared_ptr<spdlog::logger> m_logger;
 };
+
+// Meyer's Singleton design for thread safe and lazy initialization
+inline
+std::shared_ptr<Renderer>
+getGlobalRenderer()
+{
+    static auto instance = std::make_shared<Renderer>();
+    return instance;
+}
 
 } // namespace renderer
 

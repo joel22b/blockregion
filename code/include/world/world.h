@@ -20,7 +20,7 @@ namespace world
 
 class World {
 public:
-	World(std::shared_ptr<renderer::Renderer> _renderer);
+	World();
 	~World();
 
 	errors::expected<> loadArea(ChunkCoord coord);
@@ -30,7 +30,6 @@ public:
 private:
 	std::shared_ptr<renderer::Wrapper<Chunk>> getChunk(ChunkCoord coord);
 
-	std::shared_ptr<renderer::Renderer> renderer;
 	std::shared_ptr<world::Area> area;
 	std::shared_ptr<spdlog::logger> m_logger;
 };

@@ -16,6 +16,11 @@
 
 #include <renderer/renderer.h>
 
+// OpenGL includes
+#include <GL/glew.h>
+
+#include <GLFW/glfw3.h>
+
 namespace renderer
 {
 
@@ -24,6 +29,11 @@ namespace renderer
 ********************************/
 Renderer::Renderer()
 {
+    m_logger = spdlog::get("blockregion");
+
+    //window = std::make_shared<Window>(1600, 800);
+    window = std::make_shared<Window>();
+
     texLoader = std::make_shared<textures::Loader>();
 
     // Shaders
@@ -31,16 +41,30 @@ Renderer::Renderer()
     textShader = std::make_shared<shaders::Text>(texLoader);
 }
 
-Renderer::Renderer(std::shared_ptr<textures::Loader> _texLoader, std::shared_ptr<shaders::Block> _blockShader)
+void
+Renderer::updateFOV(float fov)
 {
-    texLoader = _texLoader;
-    blockShader = _blockShader;
-    textShader = std::make_shared<shaders::Text>(texLoader);
+    blockShader->Use();
+	glm::mat4 projection(1);
+	projection = glm::perspective(fov, window->getAspectRatio(), 0.1f, 1000.0f);
+	glUniformMatrix4fv(glGetUniformLocation(blockShader->getProgram(), "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+}
+
+void
+Renderer::updateCamera(glm::mat4 viewMatrix, world::Coord position)
+{
+    blockShader->Use();
+	glUniformMatrix4fv(glGetUniformLocation(blockShader->getProgram(), "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniform3f(glGetUniformLocation(blockShader->getProgram(), "viewPos"), position.x, position.y, position.z);
 }
 
 void
 Renderer::renderAll()
 {
+    // Clear previous data and set background colour
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     struct MeshRenderer
     {
         void operator()(Chunk_Mesh& cMesh) const { cMesh.doRender(); }
@@ -54,6 +78,8 @@ Renderer::renderAll()
         //cMesh.doRender();
         std::visit(MeshRenderer{}, *meshIter->second);
     }
+
+    window->swapBuffers();
 }
 
 errors::expected<>
