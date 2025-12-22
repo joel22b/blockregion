@@ -77,7 +77,7 @@ jobs:
         run: |
           $sshDir = Join-Path $env:USERPROFILE ".ssh"
           if (!(Test-Path $sshDir)) { New-Item -ItemType Directory -Path $sshDir }
-          ssh-keyscan -oKexAlgorithms=+diffie-hellman-group14-sha1 github.com | Out-File -FilePath (Join-Path $sshDir "known_hosts") -Encoding ascii -Append
+          ssh-keyscan -t rsa,ed25519 github.com | Out-File -FilePath (Join-Path $sshDir "known_hosts") -Encoding ascii -Append
 
       - name: Setup Linux
         if: matrix.platform == 'Linux'
