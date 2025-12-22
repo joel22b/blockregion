@@ -45,10 +45,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - operating-system: windows-latest
-            platform: Windows
-            package-extension: zip
-            artifact-name: windows-packages
+          #- operating-system: windows-latest
+          #  platform: Windows
+          #  package-extension: zip
+          #  artifact-name: windows-packages
           - operating-system: ubuntu-latest
             platform: Linux
             package-extension: deb
