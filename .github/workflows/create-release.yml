@@ -60,6 +60,8 @@ jobs:
 
       - name: Install CMake
         uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.22.0"
 
       - name: Setup MSVC
         if: matrix.platform == 'Windows'
