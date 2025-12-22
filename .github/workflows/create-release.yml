@@ -65,6 +65,11 @@ jobs:
         if: matrix.platform == 'Windows'
         uses: microsoft/setup-msbuild@v2
 
+      - name: Add GitHub to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
       - name: Setup Linux
         if: matrix.platform == 'Linux'
         run: |
@@ -73,6 +78,9 @@ jobs:
             build-essential \
             libgtk-3-dev \
             pkg-config
+
+      - name: Configure CMake (Linux)
+        if: matrix.platform == 'Linux'
           cmake -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Configure CMake (Windows)
