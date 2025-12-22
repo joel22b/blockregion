@@ -24,9 +24,9 @@ jobs:
 
       - name: Verify input version number matches CMakeLists.txt project version number
         run: |
-          VERSION_MAJOR=$(sed -n 's/set(MAJOR "\(.*\)")/\1/p' CMakeLists.txt
-          VERSION_MINOR=$(sed -n 's/set(MINOR "\(.*\)")/\1/p' CMakeLists.txt
-          VERSION_REV=$(sed -n 's/set(REV   "\(.*\)")/\1/p' CMakeLists.txt
+          VERSION_MAJOR=$(sed -n 's/set(MAJOR "\(.*\)")/\1/p' CMakeLists.txt)
+          VERSION_MINOR=$(sed -n 's/set(MINOR "\(.*\)")/\1/p' CMakeLists.txt)
+          VERSION_REV=$(sed -n 's/set(REV   "\(.*\)")/\1/p' CMakeLists.txt)
           PROJECT_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REV}"
           if [ "${{ inputs.version }}" != "$PROJECT_VERSION" ]; then
             echo "ERROR: Input version (${{ inputs.version }}) does not match CMakeLists.txt project version ($PROJECT_VERSION). Exiting."
