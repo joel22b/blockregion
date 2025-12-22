@@ -67,20 +67,15 @@ jobs:
 
       - name: Add GitHub to known hosts (Linux)
         if: matrix.platform == 'Linux'
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+        run: ssh-keyscan -oKexAlgorithms=+diffie-hellman-group14-sha1 github.com >> ~/.ssh/known_hosts
 
       - name: Add GitHub to known hosts (Windows)
         if: matrix.platform == 'Windows'
         shell: pwsh
         run: |
-          # Create the .ssh directory in the user profile if it doesn't exist
           $sshDir = Join-Path $env:USERPROFILE ".ssh"
           if (!(Test-Path $sshDir)) { New-Item -ItemType Directory -Path $sshDir }
-          
-          # Scan GitHub's public key and add it to known_hosts
-          ssh-keyscan github.com | Out-File -FilePath (Join-Path $sshDir "known_hosts") -Encoding ascii -Append
+          ssh-keyscan -oKexAlgorithms=+diffie-hellman-group14-sha1 github.com | Out-File -FilePath (Join-Path $sshDir "known_hosts") -Encoding ascii -Append
 
       - name: Setup Linux
         if: matrix.platform == 'Linux'
