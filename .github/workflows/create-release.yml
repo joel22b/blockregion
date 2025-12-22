@@ -81,7 +81,7 @@ jobs:
 
       - name: Configure CMake (Linux)
         if: matrix.platform == 'Linux'
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Configure CMake (Windows)
         if: matrix.platform == 'Windows'
