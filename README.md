@@ -56,6 +56,13 @@ TODO: Add instructions for Windows build
 
 # Release Notes
 
+## v1.0.0 Packaging and Installing
+
+The v1.0.0 release is marked by the ability to build an installable version that can be installed on another machine with no building required!
+- Create `.deb` and `.tar.gz` install options for Linux
+- Improved error handling around missing textures, shaders, and rendering errors
+- Created release workflow to handle releasing for multiple systems automatically
+
 ## v0.2.0 Rendering Engine
 
 <img src="docs/images/screenshot-v0.2.0.png" width="auto" height="200" />

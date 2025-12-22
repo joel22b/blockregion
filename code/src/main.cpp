@@ -98,7 +98,12 @@ int main() {
 
         game->doUpdate(deltaTime);
 
-        renderer::getGlobalRenderer()->renderAll();
+        if (errors::expected<> ret = renderer::getGlobalRenderer()->renderAll();
+            errors::has_error(ret))
+        {
+            logger->critical("RenderAll failure: {}", ret.error());
+            game->stop();
+        }
     }
     logger->debug("Finished main loop");
 

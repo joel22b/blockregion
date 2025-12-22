@@ -58,7 +58,7 @@ Renderer::updateCamera(glm::mat4 viewMatrix, world::Coord position)
 	glUniform3f(glGetUniformLocation(blockShader->getProgram(), "viewPos"), position.x, position.y, position.z);
 }
 
-void
+errors::expected<>
 Renderer::renderAll()
 {
     // Clear previous data and set background colour
@@ -67,19 +67,36 @@ Renderer::renderAll()
     
     struct MeshRenderer
     {
-        void operator()(Chunk_Mesh& cMesh) const { cMesh.doRender(); }
-        void operator()(meshes::Text& mesh) const { mesh.render(); }
+        errors::expected<> operator()(Chunk_Mesh& cMesh) const { return cMesh.doRender(); }
+        errors::expected<> operator()(meshes::Text& mesh) const { return mesh.render(); }
     };
 
     // TODO: Add locking
+    std::vector<RenderId> toRemove;
     for (auto meshIter = meshes.begin(); meshIter != meshes.end(); meshIter++)
     {
         //Chunk_Mesh cMesh = std::get<Chunk_Mesh>(*meshIter->second);
         //cMesh.doRender();
-        std::visit(MeshRenderer{}, *meshIter->second);
+        errors::expected<> ret = std::visit(MeshRenderer{}, *meshIter->second);
+        if (errors::has_error(ret))
+        {
+            m_logger->error("Failed to render item with ID {} and will remove it: {}", meshIter->first, ret.error());
+            toRemove.emplace_back(meshIter->first);
+        }
+    }
+
+    for (RenderId id: toRemove)
+    {
+        unregister(id);
+    }
+    if (toRemove.size() > 1)
+    {
+        return errors::unexpected(fmt::format("Renderer had to remove {} objects, requesting shutdown", toRemove.size()), errors::Code::CriticalFailure);
     }
 
     window->swapBuffers();
+
+    return {};
 }
 
 errors::expected<>

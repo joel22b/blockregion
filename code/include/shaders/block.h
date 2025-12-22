@@ -24,10 +24,10 @@ public:
     Block(std::shared_ptr<textures::Loader> texLoader) : Shader(texLoader)
     {}
 
-    void bindTextures();
-    void unbindTextures();
+    errors::expected<> bindTextures();
+    errors::expected<> unbindTextures();
 
-    void draw(GLuint VAO, size_t size);
+    errors::expected<> draw(GLuint VAO, size_t size);
 
     // This should only be called by Shader class
     errors::expected<> attachShaders() const;
@@ -41,10 +41,13 @@ private:
 ********************************/
 
 inline
-void
+errors::expected<>
 Block::bindTextures()
 {
-    //std::cout << "bind loadTextures size: " << texs->size() << std::endl;
+    if (!valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is not in a valid state in call to bindTextures", name), errors::Code::InvalidState);
+    }
 
     Use();
 
@@ -81,14 +84,21 @@ Block::bindTextures()
     GLenum err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error bind: " << err << std::endl;
+        return errors::unexpected(fmt::format("Error bind in shader [{}]: 0x{:x}", name, err), errors::Code::Unknown);
     }
+
+    return {};
 }
 
 inline
-void
+errors::expected<>
 Block::unbindTextures()
 {
+    if (!valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is not in a valid state in call to unbindTextures", name), errors::Code::InvalidState);
+    }
+
     // Always good practice to set everything back to defaults once configured.
     for (GLuint i = 0; i < texs->size(); i++)
     {
@@ -99,14 +109,21 @@ Block::unbindTextures()
     GLenum err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error unbind: " << err << std::endl;
+        return errors::unexpected(fmt::format("Error unbind in shader [{}]: 0x{:x}", name, err), errors::Code::Unknown);
     }
+
+    return {};
 }
 
 inline
-void
+errors::expected<>
 Block::draw(GLuint VAO, size_t size)
 {
+    if (!valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is not in a valid state in call to draw", name), errors::Code::InvalidState);
+    }
+
     glBindVertexArray(VAO);
     glDrawArrays(GL_POINTS, 0, size);
     glBindVertexArray(0);
@@ -114,14 +131,21 @@ Block::draw(GLuint VAO, size_t size)
     GLenum err = glGetError();
     if (err != GL_NO_ERROR)
     {
-        std::cout << "Error draw: " << err << std::endl;
+        return errors::unexpected(fmt::format("Error draw in shader [{}]: 0x{:x}", name, err),  errors::Code::Unknown);
     }
+
+    return {};
 }
 
 inline
 errors::expected<>
 Block::attachShaders() const
 {
+    if (valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is in a valid state in call to attachShaders", name), errors::Code::InvalidState);
+    }
+
     Loader loader;
     
     errors::expected<GLuint> vert = loader.load("block/block.vert", GL_VERTEX_SHADER);
@@ -161,6 +185,11 @@ inline
 errors::expected<>
 Block::loadTextures(std::shared_ptr<textures::Loader> texLoader)
 {
+    if (valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is in a valid state in call to loadTextures", name), errors::Code::InvalidState);
+    }
+
     Use();
 
     const std::string tmp {"blocks"};

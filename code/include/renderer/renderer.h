@@ -33,7 +33,7 @@ public:
     void updateFOV(float fov);
     void updateCamera(glm::mat4 viewMatrix, world::Coord position);
 
-    void renderAll();
+    errors::expected<> renderAll();
 
     template<typename T>
     errors::expected<RenderId> registerNew(T toRegister)

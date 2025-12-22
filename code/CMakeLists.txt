@@ -12,7 +12,12 @@ add_executable(${EXE}
     ${BLOCKREGION_SOURCE_FILES}
 )
 
-target_include_directories(${EXE} PUBLIC 
+add_dependencies(${EXE}
+    copy_textures
+    copy_shaders
+)
+
+target_include_directories(${EXE} PRIVATE 
     ${OPENGL_INCLUDE_DIR}
     ${SOIL2_INCLUDE_DIR}
     ${GLM_INCLUDE_DIRS}
@@ -34,10 +39,20 @@ target_link_libraries(${EXE} PRIVATE
     asio
 )
 
-target_compile_definitions(${EXE} PUBLIC
+target_compile_definitions(${EXE} PRIVATE
     -DVERSION_STRING="${VERSION_STRING}"
-    -DSHADERS_PATH="${GIT_REPO_BASE}/code/shaders/"
-    -DTEXTURES_PATH="${GIT_REPO_BASE}/textures/"
+    -DSHADERS_PATH="../shaders/"
+    -DTEXTURES_PATH="../textures/"
 )
 
+#######################################################
+# Installation Instructions
+#######################################################
+install(TARGETS ${EXE}
+        DESTINATION bin
+        #COMPONENT BlockregionApp
+)
 
+#install(FILES shaders/block.frag
+#        DESTINATION shaders
+#)

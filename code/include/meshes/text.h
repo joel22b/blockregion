@@ -12,6 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <shaders/text.h>
+#include <errors/br-expected.h>
 
 namespace meshes
 {
@@ -39,7 +40,7 @@ public:
     };
     ~Text() {};
 
-    void render();
+    errors::expected<> render();
 
 private:
     std::shared_ptr<shaders::Text> textShader;
@@ -54,18 +55,28 @@ private:
 };
 
 inline
-void
+errors::expected<>
 Text::render()
 {
     if (!textShader)
     {
-        std::cout << "TEXT SHADER DOESN'T EXIST" << std::endl;
-        //return;
+        return errors::unexpected("Tried to render text without shader", errors::Code::InvalidState);
     }
 
-    textShader->bindTextures(color);
-    textShader->draw(VAO, VBO, text, x, y, scale);
-    textShader->unbindTextures();
+    if (errors::expected<> ret = textShader->bindTextures(color); errors::has_error(ret))
+    {
+        return ret;
+    }
+    if (errors::expected<> ret = textShader->draw(VAO, VBO, text, x, y, scale); errors::has_error(ret))
+    {
+        return ret;
+    }
+    if (errors::expected<> ret = textShader->unbindTextures(); errors::has_error(ret))
+    {
+        return ret;
+    }
+
+    return {};
 }
 
 }; // namespace meshes

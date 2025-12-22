@@ -7,6 +7,7 @@
 #include <optional>
 #include <vector>
 #include <memory>
+#include <atomic>
 
 #include <GL/glew.h>
 
@@ -37,8 +38,11 @@ protected:
     errors::expected<> linkProgram() const;
 
     GLuint program;
+    std::atomic<bool> valid {false};
 
     std::shared_ptr<std::vector<textures::Texture>> texs;
+
+    std::shared_ptr<spdlog::logger> m_logger;
 };
 
 /********************************
@@ -47,35 +51,35 @@ protected:
 
 template <typename Derived>
 inline
-Shader<Derived>::Shader(std::shared_ptr<textures::Loader> texLoader)
+Shader<Derived>::Shader(std::shared_ptr<textures::Loader> texLoader):
+    m_logger(spdlog::get("blockregion"))
 {
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR)
+    program = glCreateProgram();
+    if (GLenum err = glGetError(); err != GL_NO_ERROR)
     {
         std::string derivedName {static_cast<const Derived*>(this)->name};
-        std::cout << "Error shader start: " << derivedName << " Error: " << err << std::endl;
-    }
-
-    program = glCreateProgram();
-    err = glGetError();
-    if (err != GL_NO_ERROR)
-    {
-        std::cout << "Error shader program: " << err << std::endl;
+        m_logger->critical("Failed to create shader program for [{}]: {}", derivedName, err);
+        return;
     }
 
     errors::expected<> retAttach = static_cast<const Derived*>(this)->attachShaders();
     if (errors::has_error(retAttach))
     {
-        std::cout << "Failed to attach shaders: " << retAttach.error() << std::endl;
+        std::string derivedName {static_cast<const Derived*>(this)->name};
+        m_logger->critical("Failed to attach shaders for [{}]: {}", derivedName, retAttach.error());
         return;
     }
 
     errors::expected<> retTextures = static_cast<Derived*>(this)->loadTextures(texLoader);
     if (errors::has_error(retTextures))
     {
-        std::cout << "Failed to load textures: " << retTextures.error() << std::endl;
+        std::string derivedName {static_cast<const Derived*>(this)->name};
+        m_logger->critical("Failed to load textures for [{}]: {}", derivedName, retTextures.error());
         return;
     }
+
+    // Success
+    valid = true;
 }
 
 template <typename Derived>
@@ -83,6 +87,11 @@ inline
 errors::expected<>
 Shader<Derived>::linkProgram() const
 {
+    if (valid)
+    {
+        return errors::unexpected(fmt::format("Shader [{}] is in a valid state in call to linkProgram", static_cast<const Derived*>(this)->name), errors::Code::InvalidState);
+    }
+
     glLinkProgram(program);
     GLint success;
     glGetProgramiv(program, GL_LINK_STATUS, &success);
