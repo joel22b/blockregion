@@ -12,6 +12,11 @@ add_executable(${EXE}
     ${BLOCKREGION_SOURCE_FILES}
 )
 
+add_dependencies(${EXE}
+    copy_textures
+    copy_shaders
+)
+
 target_include_directories(${EXE} PRIVATE 
     ${OPENGL_INCLUDE_DIR}
     ${SOIL2_INCLUDE_DIR}
@@ -36,7 +41,7 @@ target_link_libraries(${EXE} PRIVATE
 
 target_compile_definitions(${EXE} PRIVATE
     -DVERSION_STRING="${VERSION_STRING}"
-    -DSHADERS_PATH="../code/shaders/"
+    -DSHADERS_PATH="../shaders/"
     -DTEXTURES_PATH="../textures/"
 )
 

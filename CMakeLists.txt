@@ -67,6 +67,7 @@ find_package(Asio REQUIRED)
 #######################################################
 add_subdirectory(code)
 add_subdirectory(textures)
+add_subdirectory(code/shaders)
 
 #######################################################
 # Installation Instructions

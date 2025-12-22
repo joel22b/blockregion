@@ -11,8 +11,8 @@
 #include <filesystem>
 
 #include <errors/br-expected.h>
-
 #include <textures/texture.h>
+#include <utils/get-folder.h>
 
 #include <textures/error-texture.h>
 
@@ -62,27 +62,24 @@ inline
 Loader::Loader():
     m_logger(spdlog::get("blockregion"))
 {
-    m_logger->debug("PWD={} TEXTURES_PATH={}", std::filesystem::current_path().native(), TEXTURES_PATH);
-
     loadErrorTextures();
 
     // Construct path to textures.json
-    std::ostringstream jsonPath;
-    jsonPath << TEXTURES_PATH << "textures.json";
+    std::filesystem::path texturePath = utils::get_executable_dir().append(TEXTURES_PATH).append("textures.json");
 
     // Check if file exists
     struct stat buffer;
-    if (stat(jsonPath.str().c_str(), &buffer) != 0)
+    if (stat(texturePath.c_str(), &buffer) != 0)
     {
-        m_logger->error("Cannot find textures JSON, no textures will be loaded. Path: {}", jsonPath.str());
+        m_logger->error("Cannot find textures JSON, no textures will be loaded. Path: {}", texturePath.native());
         return;
     }
 
     // Open and parse the JSON file
-    std::ifstream textureJson(jsonPath.str());
+    std::ifstream textureJson(texturePath.native());
     if (!textureJson.is_open())
     {
-        m_logger->error("Failed to open textures JSON file: {}", jsonPath.str());
+        m_logger->error("Failed to open textures JSON file: {}", texturePath.native());
         return;
     }
 
@@ -113,6 +110,8 @@ Loader::getTextureSet(const std::string name)
     {
         return tsIter->second;
     }
+
+    m_logger->warn("Could not find texture [{}]", name);
     
     // Not found!
     // Return error texture loaded from memory
@@ -216,29 +215,35 @@ Loader::loadTexture(std::string name,
     std::map<TileID, glm::vec2> tileCoords)
 {
     // Find path to texture
-    std::ostringstream path;
-    path << TEXTURES_PATH << name;
+    std::filesystem::path texturePath = utils::get_executable_dir().append(TEXTURES_PATH).append(name);
     switch(type)
     {
         case TextureType::Diffuse:
-            path << "_diffuse";
+            texturePath += "_diffuse";
             break;
         case TextureType::Specular:
-            path << "_specular";
+            texturePath += "_specular";
             break;
         default:
             break;
     }
-    path << ".png";
+    texturePath += ".png";
+
+    // Check if file exists
+    struct stat buffer;
+    if (stat(texturePath.c_str(), &buffer) != 0)
+    {
+        return errors::unexpected(fmt::format("Texture [{}] file not found from disk: [{}]", name, texturePath.native()), errors::Code::NotFound);
+    }
 
     int textureWidth, textureHeight;
     unsigned char *image;
 
     // Load in image from disk
-    image = SOIL_load_image(path.str().c_str(), &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
+    image = SOIL_load_image(texturePath.c_str(), &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
     if (image == NULL)
     {
-        return errors::unexpected("Failed to load texture from disk: " + path.str(), errors::Code::InvalidArgument);
+        return errors::unexpected("Failed to load texture from disk: " + texturePath.native(), errors::Code::InvalidArgument);
     }
 
     errors::expected<GLuint> retBind = bindTexture(image, textureWidth, textureHeight);
@@ -256,13 +261,13 @@ Loader::loadTexture(std::string name,
     errors::expected<int> tileNumWidth = getTileNumWithinTexture(textureWidth, tileWidth);
     if (errors::has_error(tileNumWidth))
     {
-        return errors::unexpected(tileNumWidth.error().prefix("Tile width deduction failed for ["+path.str()+"]: "));
+        return errors::unexpected(tileNumWidth.error().prefix("Tile width deduction failed for ["+name+"]: "));
     }
 
     errors::expected<int> tileNumHeight = getTileNumWithinTexture(textureHeight, tileHeight);
     if (errors::has_error(tileNumHeight))
     {
-        return errors::unexpected(tileNumHeight.error().prefix("Tile height deduction failed for ["+path.str()+"]: "));
+        return errors::unexpected(tileNumHeight.error().prefix("Tile height deduction failed for ["+name+"]: "));
     }
 
     // Normalize each tileCoords vector to be a fraction with the
@@ -384,6 +389,8 @@ Loader::addTexture(std::string name, Texture& texture,
 
         // Exisiting tile info does not conflict with this tile
         tsIter->second.textures->emplace_back(texture);
+
+        m_logger->debug("Added texture [{}] to existing entry", name);
     }
     else
     {
@@ -395,6 +402,8 @@ Loader::addTexture(std::string name, Texture& texture,
         texSet.textures->emplace_back(texture);
         texSet.tileCoords = std::move(tileCoords);
         textureSets[name] = texSet;
+
+        m_logger->debug("Added texture [{}] as a new entry", name);
     }
 
     return {};
@@ -475,16 +484,16 @@ Loader::loadText(std::string name)
     auto errorFtInit = FT_Init_FreeType(&ft);
     if (errorFtInit)
     {
-        return errors::unexpected("ERROR::FREETYPE::Could_not_init_FreeType_Library: "+std::to_string(errorFtInit), errors::Code::InitializationError);
+        return errors::unexpected(fmt::format("Failed to initialize Freetype library: 0x{:x}", errorFtInit), errors::Code::InitializationError);
     }
 
-    std::string path {TEXTURES_PATH + name + ".ttf"};
+    std::filesystem::path textPath = utils::get_executable_dir().append(TEXTURES_PATH).append(name + ".ttf");
 
     FT_Face face;
-    auto errorFaceNew = FT_New_Face(ft, path.c_str(), 0, &face);
+    auto errorFaceNew = FT_New_Face(ft, textPath.c_str(), 0, &face);
     if (errorFaceNew)
     {
-        return errors::unexpected("ERROR::FREETYPE::Failed_to_load_font: "+std::to_string(errorFaceNew)+" Path: "+path, errors::Code::InvalidArgument);
+        return errors::unexpected(fmt::format("Failed to load text [{}] from disk with error 0x{:x}: [{}]", name, errorFaceNew, textPath.native()), errors::Code::InvalidArgument);
     }
     else {
         // set size to load glyphs as
@@ -502,7 +511,7 @@ Loader::loadText(std::string name)
             // Load character glyph 
             if (FT_Load_Char(face, c, FT_LOAD_RENDER))
             {
-                m_logger->error("ERROR::FREETYTPE: Failed to load Glyph [0x{:x}]", c);
+                m_logger->error("Failed to load Glyph [0x{:x}]", c);
                 continue;
             }
             // generate texture
