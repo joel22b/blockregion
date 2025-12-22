@@ -2,7 +2,7 @@ include(FetchContent)
 
 FetchContent_Declare(
     SOIL2
-    GIT_REPOSITORY git@github.com:SpartanJ/SOIL2.git
+    GIT_REPOSITORY https://github.com/SpartanJ/SOIL2.git
     GIT_TAG 1.31
     GIT_SHALLOW TRUE
 )
