@@ -69,17 +69,17 @@ Loader::Loader():
 
     // Check if file exists
     struct stat buffer;
-    if (stat(texturePath.c_str(), &buffer) != 0)
+    if (stat(texturePath.string().c_str(), &buffer) != 0)
     {
-        m_logger->error("Cannot find textures JSON, no textures will be loaded. Path: {}", texturePath.native());
+        m_logger->error("Cannot find textures JSON, no textures will be loaded. Path: {}", texturePath.string());
         return;
     }
 
     // Open and parse the JSON file
-    std::ifstream textureJson(texturePath.native());
+    std::ifstream textureJson(texturePath.string());
     if (!textureJson.is_open())
     {
-        m_logger->error("Failed to open textures JSON file: {}", texturePath.native());
+        m_logger->error("Failed to open textures JSON file: {}", texturePath.string());
         return;
     }
 
@@ -231,19 +231,19 @@ Loader::loadTexture(std::string name,
 
     // Check if file exists
     struct stat buffer;
-    if (stat(texturePath.c_str(), &buffer) != 0)
+    if (stat(texturePath.string().c_str(), &buffer) != 0)
     {
-        return errors::unexpected(fmt::format("Texture [{}] file not found from disk: [{}]", name, texturePath.native()), errors::Code::NotFound);
+        return errors::unexpected(fmt::format("Texture [{}] file not found from disk: [{}]", name, texturePath.string()), errors::Code::NotFound);
     }
 
     int textureWidth, textureHeight;
     unsigned char *image;
 
     // Load in image from disk
-    image = SOIL_load_image(texturePath.c_str(), &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
+    image = SOIL_load_image(texturePath.string().c_str(), &textureWidth, &textureHeight, 0, SOIL_LOAD_RGBA);
     if (image == NULL)
     {
-        return errors::unexpected("Failed to load texture from disk: " + texturePath.native(), errors::Code::InvalidArgument);
+        return errors::unexpected("Failed to load texture from disk: " + texturePath.string(), errors::Code::InvalidArgument);
     }
 
     errors::expected<GLuint> retBind = bindTexture(image, textureWidth, textureHeight);
@@ -490,10 +490,10 @@ Loader::loadText(std::string name)
     std::filesystem::path textPath = utils::get_executable_dir().append(TEXTURES_PATH).append(name + ".ttf");
 
     FT_Face face;
-    auto errorFaceNew = FT_New_Face(ft, textPath.c_str(), 0, &face);
+    auto errorFaceNew = FT_New_Face(ft, textPath.string().c_str(), 0, &face);
     if (errorFaceNew)
     {
-        return errors::unexpected(fmt::format("Failed to load text [{}] from disk with error 0x{:x}: [{}]", name, errorFaceNew, textPath.native()), errors::Code::InvalidArgument);
+        return errors::unexpected(fmt::format("Failed to load text [{}] from disk with error 0x{:x}: [{}]", name, errorFaceNew, textPath.string()), errors::Code::InvalidArgument);
     }
     else {
         // set size to load glyphs as

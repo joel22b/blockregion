@@ -42,6 +42,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS)
 if(WIN32)
     #set(CPACK_INSTALL_PREFIX "/usr/games/blockregion")
+    add_compile_definitions(
+        WIN32_MEAN_AND_LEAN
+        VC_EXTRALEAN
+        _CRT_SECURE_NO_WARNINGS
+        NOMINMAX
+    )
 elseif(APPLE)
     #set(CPACK_INSTALL_PREFIX "/usr/games/blockregion")
 elseif(UNIX AND NOT APPLE)
@@ -56,7 +62,7 @@ find_package(Glew REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(SOIL2 REQUIRED)
 find_package(glm REQUIRED)
-find_package(PkgConfig REQUIRED)
+find_package(PkgConfig)
 find_package(Freetype REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(Spdlog REQUIRED)
