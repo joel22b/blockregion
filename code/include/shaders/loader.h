@@ -38,7 +38,7 @@ Loader::load(std::string filename, GLenum type)
 {
     std::filesystem::path shaderPath = utils::get_executable_dir().append(SHADERS_PATH).append(filename);
     
-    errors::expected<std::string> code = loadFile(shaderPath.native());
+    errors::expected<std::string> code = loadFile(shaderPath.string());
     if (errors::has_error(code))
     {
         return errors::unexpected(code.error());

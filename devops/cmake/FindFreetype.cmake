@@ -7,11 +7,20 @@ FetchContent_Declare(
     GIT_SHALLOW TRUE
 )
 
-#FetchContent_MakeAvailable(Freetype)
-
 FetchContent_GetProperties(Freetype)
 if(NOT freetype_POPULATED)
     FetchContent_Populate(Freetype)
+    
+    # Patch the CMakeLists.txt to update cmake_minimum_required version
+    file(READ "${freetype_SOURCE_DIR}/CMakeLists.txt" FREETYPE_CMAKELISTS_CONTENT)
+    string(REPLACE 
+        "cmake_minimum_required(VERSION 3.0)" 
+        "cmake_minimum_required(VERSION 3.5)" 
+        FREETYPE_CMAKELISTS_CONTENT 
+        "${FREETYPE_CMAKELISTS_CONTENT}"
+    )
+    file(WRITE "${freetype_SOURCE_DIR}/CMakeLists.txt" "${FREETYPE_CMAKELISTS_CONTENT}")
+    
     # Manually add the directory with EXCLUDE_FROM_ALL
     add_subdirectory(${freetype_SOURCE_DIR} ${freetype_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
